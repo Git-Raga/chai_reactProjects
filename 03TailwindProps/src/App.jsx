@@ -1,13 +1,14 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import {useState } from "react";
+import React from "react"; 
 import './App.css'
 import Cards from './components/Cards'
-import autoprefixer from 'autoprefixer'
 import Input from './components/Input'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [textFromInput, setTextFromInput] = useState("");
+  const handleInputChange = (text) => {
+    setTextFromInput(text);
+  };
 
   return (
     <>
@@ -28,7 +29,7 @@ function App() {
               text-4xl
               
               ">
-            Project 03 | Tailwind CSS & Props
+            Project 03 | Tailwind CSS & Props (contextAPI)
             <div>
               <br></br>
               <hr></hr>
@@ -53,13 +54,11 @@ function App() {
               
 
                 ">
-                  <Input />
-                  <Cards />
-                  <Cards />
+                  <Input onInputChange={handleInputChange} />
+                  <Cards cardname="Card-1"inputText={textFromInput}/>
+                  <Cards cardname="Card-2"inputText={textFromInput}/>
 
                   
-                  
-
               </div>
        {/* Footer */}
             <div className="

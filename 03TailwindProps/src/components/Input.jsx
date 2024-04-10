@@ -1,6 +1,21 @@
+import { useState } from "react";
 import React from "react";
 
-export default function Input() {
+export default function Input({ onInputChange }) {
+  const [inputText, setInputText] = useState("");
+
+  const handleChange = (event) => {
+   
+    setInputText(event.target.value);
+  };
+
+  const handleClick = (e) => {
+    e.preventDefault()
+    onInputChange(inputText);
+    console.log(inputText)
+  };
+
+
   return (
     <>
       <div
@@ -24,8 +39,8 @@ export default function Input() {
         >
           Enter text & Select the Card
         </p>
-        <form className="w-full max-w-sm">
-          <div>
+        <form onSubmit={handleClick}>
+          <div className="w-full max-w-sm">
             <input
               className="
                 rounded-lg
@@ -39,36 +54,25 @@ export default function Input() {
 
                 focus:ring-4 focus:ring-black 
                 "
-              id="inline-full-name"
+              id="Kname"
               placeholder="Enter Name"
               type="text"
+              value={inputText}
+              onChange={handleChange}
+            
+          
             />
+              
           </div>
 
-          <div className="p-7">
-            <input
-              className="mr-5 leading-tight
-            w-4
-            h-4
-            p-4
-            mb-4"
-              type="checkbox"
-            />
-            <span className="text-xl "> Card 1</span>
-            <br></br>
-            <input
-              className="mr-5 leading-tight
-                 w-4
-                 h-4
-                 "
-              type="checkbox"
-            />
-            <span className="text-xl "> Card 2</span>
-          </div>
-
-          <div className="p-10">
+          
+          <div className="p-10
+          
+          my-14
+          ">
             <button
-              className="shadow bg-teal-450  hover:bg-teal-950  hover:text-white
+              className="shadow bg-teal-450  hover:bg-teal-950 
+               hover:text-white
                     focus:shadow-outline focus:outline-none
                     text-black font-bold
                     rounded
@@ -77,13 +81,22 @@ export default function Input() {
                      
 
                     "
-              type="button"
+              type="submit"
+               
             >
               PUSH
             </button>
           </div>
         </form>
+         
+
+
+    
+  
+
+         
       </div>
+     
     </>
   );
 }
