@@ -29,7 +29,7 @@ function App() {
               text-4xl
               
               ">
-            Project 03 | Tailwind CSS & Props (contextAPI)
+            Project 03 | Tailwind CSS & Props
             <div>
               <br></br>
               <hr></hr>
