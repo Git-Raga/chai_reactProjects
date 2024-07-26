@@ -1,10 +1,12 @@
-// ✅ Create outer Div
-// ✅ Create footer
-//✅  Have your own icon for the tab
-//✅   Create dive for eneter name & to which card radio button
-//✅ get the input text to print
-//✅ understand contextAPI
-//TODO: button click animation
+
+
+TODO: Border around the flag
+TODO: Background to change to gray
+TODO: understand contextAPI
+
+
+
+
 
 
 
