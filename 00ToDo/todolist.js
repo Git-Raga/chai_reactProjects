@@ -1,8 +1,7 @@
 
 
-TODO: Border around the flag
-TODO: Background to change to gray
-TODO: understand contextAPI
+TODO: Start from here ==>23:16 - create form for new task add
+ 
 
 
 
