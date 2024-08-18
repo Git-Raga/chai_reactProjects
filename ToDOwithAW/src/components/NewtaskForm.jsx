@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function NewtaskForm({ setNotes }) {
+function NewtaskForm({ setNotes, inputClass }) {
   const [error, setError] = useState(null);
   const maxLength = 255; // Example max length for the input
 
@@ -14,7 +14,7 @@ function NewtaskForm({ setNotes }) {
     }
 
     if (newTaskText.length > maxLength) {
-      setError(`Task cannot exceed ${maxLength} characters`); // Corrected here
+      setError(`Task cannot exceed ${maxLength} characters`);
       return;
     }
 
@@ -43,8 +43,7 @@ function NewtaskForm({ setNotes }) {
         name="newtaskbody"
         placeholder="🤔 Bring it on...What's the next task?"
         maxLength={maxLength}
-        className="w-full p-2 text-lg
-        rounded-3xl mb"
+        className={`w-full p-2 text-lg rounded-3xl mb ${inputClass}`}
       />
       {error && <p className="text-red-500">{error}</p>}
     </form>

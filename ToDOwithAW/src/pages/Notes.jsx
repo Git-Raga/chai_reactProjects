@@ -61,7 +61,7 @@ function Notes() {
       case 'dark':
         return 'bg-gray-700 text-white border-gray-500';
       case 'green':
-        return 'bg-green-600 text-white border-gray-400';
+        return 'bg-cyan-800 text-white border-gray-400';
       default:
         return 'bg-gray-100 text-black border-gray-300';
     }
@@ -69,31 +69,28 @@ function Notes() {
 
   return (
     <div className={`min-h-screen ${getContainerClass()}`}>
-    <div className="container mx-auto p-4">
-      <div className="flex items-center justify-between mb-4">
-      <ThemeChanger currentTheme={theme} setTheme={setTheme} />
-       
-        <h1 className="text-2xl font-mono">TaskForce - Todolist</h1>
-        <span role="img" aria-label="task" className="ml-2 text-5xl">☑</span>
+      <div className="container mx-auto p-4">
+        <div className="flex items-center justify-between mb-4">
+          <ThemeChanger currentTheme={theme} setTheme={setTheme} />
+          <h1 className="text-2xl font-mono">TaskForce - Todolist</h1>
+          <span role="img" aria-label="task" className="ml-2 text-5xl">☑</span>
+        </div>
+
+        <NewtaskForm setNotes={setNotes} inputClass={getInputClass()} />
+
+        {notes.length === 0 ? (
+          <div className="text-center text-gray-500">No tasks found</div>
+        ) : (
+          notes.map((note) => (
+            <div
+              key={note.$id}
+              className={`p-4 mb-2 rounded-xl shadow flex justify-between items-center ${getTaskClass()}`}
+            >
+              <Tasks taskData={note} setNotes={setNotes} />
+            </div>
+          ))
+        )}
       </div>
-
-      
-
-      <NewtaskForm setNotes={setNotes} inputClass={getInputClass()} />
-
-      {notes.length === 0 ? (
-        <div className="text-center text-gray-500">No tasks found</div>
-      ) : (
-        notes.map((note) => (
-          <div
-            key={note.$id}
-            className={`p-4 mb-2 rounded-xl shadow flex justify-between items-center ${getTaskClass()}`}
-          >
-            <Tasks taskData={note} setNotes={setNotes} />
-          </div>
-        ))
-      )}
-    </div>
     </div>
   );
 }
