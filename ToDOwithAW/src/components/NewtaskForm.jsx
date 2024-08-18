@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import db from "../appwrite/database";
 
 function NewtaskForm({ setNotes, inputClass }) {
   const [error, setError] = useState(null);
@@ -10,11 +11,13 @@ function NewtaskForm({ setNotes, inputClass }) {
 
     if (newTaskText === '') {
       setError('Task cannot be empty');
+      setTimeout(() => setError(null), 3000); // Clear the error after 3 seconds
       return;
     }
 
     if (newTaskText.length > maxLength) {
       setError(`Task cannot exceed ${maxLength} characters`);
+      setTimeout(() => setError(null), 3000); // Clear the error after 3 seconds
       return;
     }
 
@@ -27,6 +30,7 @@ function NewtaskForm({ setNotes, inputClass }) {
     } catch (error) {
       console.error(error);
       setError('Failed to add task. Please try again.');
+      setTimeout(() => setError(null), 3000); // Clear the error after 3 seconds
     }
   };
 
@@ -45,7 +49,9 @@ function NewtaskForm({ setNotes, inputClass }) {
         maxLength={maxLength}
         className={`w-full p-2 text-lg rounded-3xl mb ${inputClass}`}
       />
-      {error && <p className="text-red-500">{error}</p>}
+      <div className="flex justify-center ">
+        {error && <p className="text-red-500 text-sm text-center">{error}</p>} {/* Centering the error message */}
+      </div>
     </form>
   );
 }

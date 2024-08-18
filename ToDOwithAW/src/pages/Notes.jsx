@@ -61,7 +61,7 @@ function Notes() {
       case 'dark':
         return 'bg-gray-700 text-white border-gray-500';
       case 'green':
-        return 'bg-cyan-800 text-white border-gray-400';
+        return 'bg-cyan-100 text-black border-gray-400';
       default:
         return 'bg-gray-100 text-black border-gray-300';
     }
@@ -78,15 +78,23 @@ function Notes() {
 
         <NewtaskForm setNotes={setNotes} inputClass={getInputClass()} />
 
+        {/* Separator Line */}
+        <hr className="my-4 border-gray-300" />
+
         {notes.length === 0 ? (
           <div className="text-center text-gray-500">No tasks found</div>
         ) : (
           notes.map((note) => (
             <div
               key={note.$id}
-              className={`p-4 mb-2 rounded-xl shadow flex justify-between items-center ${getTaskClass()}`}
+              className={`p-1 mb-2 rounded-xl shadow flex justify-between items-center
+                pl-3 ${getTaskClass()}`}
             >
-              <Tasks taskData={note} setNotes={setNotes} />
+              <Tasks 
+              taskData={note}  
+              setNotes={setNotes} 
+              theme={theme}
+              />
             </div>
           ))
         )}
