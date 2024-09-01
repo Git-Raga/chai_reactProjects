@@ -87,7 +87,7 @@ function Notes() {
           notes.map((note) => (
             <div
               key={note.$id}
-              className={`p-1 mb-2 rounded-xl shadow flex justify-between items-center
+              className={`p-1 mb-2 rounded-xl shadow flex justify-between items-center text-xm
                 pl-3 ${getTaskClass()}`}
             >
               <Tasks 

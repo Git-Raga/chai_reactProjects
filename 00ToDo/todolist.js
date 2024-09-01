@@ -4,9 +4,9 @@
 
 
 
-TODO: 3. add the assigned to the task 
+TODO: 3.  error when saved without task owner
 TODO: 4. add the Initials   the task owner 
-TODO: 5. Task ETA to Set 
+TODO: 5. Task age to Set 
 TODO: 6. OverDue should apprear if ETA is passed 
 TODO: 7. OverDue Font size to be bigger & Underline
 TODO: 8. RED task option to add
