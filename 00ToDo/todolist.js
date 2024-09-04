@@ -2,14 +2,28 @@
 
 
 
+ 
+ TODO:Moving the Add task outside the border
+ TODO:Diff colors for Add task border for each theme 
+ TODO:Diff colors for completed tasks for each theme 
+
+ 
+ 
+ 
+TODO:Completed tick is not staying=> fix
+TODO:Save icon to add- make it 3d like - click to save 
+TODO:check for task update with ownername - in DB
+TODO:add the Initials   the task owner - in DB
+TODO:check for task update with REDtask- in DB
+TODO: show Taskowner in tasks list view
+TODO: show TaskInitial in tasks list view
+TODO: show Redtask in tasks list view
+TODO: Task age logic to Set 
+TODO: show task age in the tasklist view
 
 
-TODO: 3.  error when saved without task owner
-TODO: 4. add the Initials   the task owner 
-TODO: 5. Task age to Set 
 TODO: 6. OverDue should apprear if ETA is passed 
 TODO: 7. OverDue Font size to be bigger & Underline
-TODO: 8. RED task option to add
  
  
 

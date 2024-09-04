@@ -1,14 +1,54 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import db from "../appwrite/database";
 
 function NewtaskForm({ setNotes, inputClass, theme }) {
   const [error, setError] = useState(null);
   const [isCritical, setIsCritical] = useState(false); // State for the checkbox
   const maxLength = 255; // Example max length for the input
+  const formRef = useRef(null); // Create a ref for the form
 
   const handleAdd = async (e) => {
     e.preventDefault();
-    const newTaskText = e.target.newtaskbody.value;
+    const formData = new FormData(formRef.current); // Use the ref to get the form element
+    const newTaskText = formData.get("newtaskbody");
+    const taskOwner = formData.get("taskOwner");
+
+    // Determine initials based on the task owner
+    let tskini = "";
+    switch (taskOwner) {
+      case "Abhishek":
+        tskini = "AM";
+        break;
+      case "Neha":
+        tskini = "NA";
+        break;
+      case "Mahima":
+        tskini = "MP";
+        break;
+      case "Suresh":
+        tskini = "SK";
+        break;
+      case "Muskan":
+        tskini = "MD";
+        break;
+      case "Swetha":
+        tskini = "SB";
+        break;
+      case "RaghavM":
+        tskini = "RM";
+        break;
+      case "Dileep":
+        tskini = "DB";
+        break;
+      case "Bhaskar":
+        tskini = "BH";
+        break;
+      case "Architha":
+        tskini = "AS";
+        break;
+      default:
+        tskini = "";
+    }
 
     if (newTaskText === "") {
       setError("Task cannot be empty");
@@ -22,13 +62,34 @@ function NewtaskForm({ setNotes, inputClass, theme }) {
       return;
     }
 
+    if (taskOwner === " ") {
+      // Check if the task owner is not selected
+      setError("Task owner not assigned");
+      setTimeout(() => setError(null), 3000); // Clear the error after 3 seconds
+      return;
+    }
+
     try {
-      const payload = { taskname: newTaskText, critical: isCritical }; // Include the critical state in the payload
+      const payload = {
+        taskname: newTaskText,
+        criticaltask: isCritical,
+        taskowner: taskOwner,
+        taskownerinitials: tskini, // Include the initials
+      };
+
+      // Attempt to create the task
       const response = await db.todocollection.create(payload);
-      setNotes((prevState) => [response, ...prevState]);
-      e.target.reset();
-      setIsCritical(false); // Reset checkbox state on submission
-      setError(null); // Clear error on successful submission
+
+      if (response) {
+        // Task created successfully
+        setNotes((prevState) => [response, ...prevState]);
+        formRef.current.reset(); // Reset the form using the ref
+        setIsCritical(false); // Reset checkbox state on submission
+        setError(null); // Clear any previous error on successful submission
+      } else {
+        // If no response, show error
+        throw new Error("Failed to add task");
+      }
     } catch (error) {
       console.error(error);
       setError("Failed to add task. Please try again.");
@@ -43,6 +104,7 @@ function NewtaskForm({ setNotes, inputClass, theme }) {
   return (
     <div className="w-full">
       <form
+        ref={formRef} // Attach the ref to the form
         className="font-bold rounded-3xl font-mono border-gray-400 border-2 mt-1 flex flex-wrap items-center gap-2"
         onSubmit={handleAdd}
         id="todo-form"
@@ -57,6 +119,7 @@ function NewtaskForm({ setNotes, inputClass, theme }) {
         />
         {/* Updated Dropdown for Owners */}
         <select
+          name="taskOwner" // Added name attribute for reference in handleAdd
           className={`p-2 mt-1 mb-1 ml-1 text-center flex-none w-1/6 rounded-3xl ${inputClass} text-sm`}
         >
           <option value=" ">Select TaskOwner</option>
@@ -73,9 +136,9 @@ function NewtaskForm({ setNotes, inputClass, theme }) {
         </select>
         {/* Checkbox for Critical Task */}
         <div
-          className={`rounded-3xl text-center p-2 mt-1 mb-1 ml-1
-            mr-2 flex-none ${inputClass}`}
+          className={`rounded-3xl text-center p-2 mt-1 mb-1 ml-1 mr-2 flex-none ${inputClass}`}
           onClick={handleCheckboxClick} // Handle click on the entire container
+          title="Set as CRITICAL Task"
         >
           <input
             type="checkbox"
@@ -83,16 +146,33 @@ function NewtaskForm({ setNotes, inputClass, theme }) {
             name="critical"
             checked={isCritical} // Bind checkbox state
             onChange={() => {}} // Prevent default checkbox behavior
-            className="mr-1
-            text-sm"
+            className="mr-1 text-red-500 h-3 w-6 appearance-none border-2 border-gray-300 rounded checked:bg-red-500 checked:border-red-500"
           />
           <label
             htmlFor="critical"
             className="text-sm cursor-pointer"
             onClick={(e) => e.stopPropagation()} // Prevent event propagation to avoid double toggle
           >
-            Critical?
+            ❗
           </label>
+        </div>
+
+        <div
+          className={`rounded-xl 
+            border-4
+            
+            text-center p-2 mt-1 mb-1 ml-1 mr-2 flex-none ${inputClass}`}
+          title="Add Task"
+        >
+          <button
+            type="submit" // Ensure this button submits the form
+            className=
+            {`text-sm  cursor-pointer ${inputClass}`}
+            
+        
+          >
+            AddTask+
+          </button>
         </div>
       </form>
       {/* Error Message Below the Form */}
