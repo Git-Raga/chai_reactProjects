@@ -6,6 +6,7 @@ function NewtaskForm({ setNotes, inputClass, theme }) {
   const [isCritical, setIsCritical] = useState(false); // State for the checkbox
   const maxLength = 255; // Example max length for the input
   const formRef = useRef(null); // Create a ref for the form
+  console.log("current theme is" + theme)
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -52,20 +53,20 @@ function NewtaskForm({ setNotes, inputClass, theme }) {
 
     if (newTaskText === "") {
       setError("Task cannot be empty");
-      setTimeout(() => setError(null), 3000); // Clear the error after 3 seconds
+      setTimeout(() => setError(null), 1000); // Clear the error after 3 seconds
       return;
     }
 
     if (newTaskText.length > maxLength) {
       setError(`Task cannot exceed ${maxLength} characters`);
-      setTimeout(() => setError(null), 3000); // Clear the error after 3 seconds
+      setTimeout(() => setError(null), 2000); // Clear the error after 3 seconds
       return;
     }
 
     if (taskOwner === " ") {
       // Check if the task owner is not selected
       setError("Task owner not assigned");
-      setTimeout(() => setError(null), 3000); // Clear the error after 3 seconds
+      setTimeout(() => setError(null), 2000); // Clear the error after 3 seconds
       return;
     }
 
@@ -93,7 +94,7 @@ function NewtaskForm({ setNotes, inputClass, theme }) {
     } catch (error) {
       console.error(error);
       setError("Failed to add task. Please try again.");
-      setTimeout(() => setError(null), 3000); // Clear the error after 3 seconds
+      setTimeout(() => setError(null), 2000); // Clear the error after 3 seconds
     }
   };
 
@@ -101,11 +102,19 @@ function NewtaskForm({ setNotes, inputClass, theme }) {
     setIsCritical((prev) => !prev); // Toggle the critical state
   };
 
+  // Apply button background colors based on theme
+  const buttonBackgroundColor = {
+    light: "bg-gray-600 hover:bg-gray-900 text-white",
+    dark: "bg-white hover:bg-gray-400 text-black",
+    green: "bg-teal-700 hover:bg-teal-600 text-teal-100",
+  };
+
   return (
     <div className="w-full">
       <form
         ref={formRef} // Attach the ref to the form
-        className="font-bold rounded-3xl font-mono border-gray-400 border-2 mt-1 flex flex-wrap items-center gap-2"
+        className="font-bold rounded-2xl 
+        font-mono border-gray-400 border-2 mt-1 flex items-center gap-2"
         onSubmit={handleAdd}
         id="todo-form"
       >
@@ -120,9 +129,10 @@ function NewtaskForm({ setNotes, inputClass, theme }) {
         {/* Updated Dropdown for Owners */}
         <select
           name="taskOwner" // Added name attribute for reference in handleAdd
-          className={`p-2 mt-1 mb-1 ml-1 text-center flex-none w-1/6 rounded-3xl ${inputClass} text-sm`}
+          className={`p-2 mt-1 mb-1 ml-1 text-center flex-none w-1/6 
+            rounded-2xl ${inputClass} text-m`}
         >
-          <option value=" ">Select TaskOwner</option>
+          <option value=" ">TaskOwner?</option>
           <option value="Mahima">Mahima</option>
           <option value="Suresh">Suresh</option>
           <option value="Abhishek">Abhishek</option>
@@ -159,22 +169,21 @@ function NewtaskForm({ setNotes, inputClass, theme }) {
 
         <div
           className={`rounded-xl 
-            border-4
+            border-2
             
-            text-center p-2 mt-1 mb-1 ml-1 mr-2 flex-none ${inputClass}`}
+            text-center p-2 mt-1 mb-1 ml-1 mr-2 flex-none 
+            ${buttonBackgroundColor[theme]}`} // Dynamically apply the button background color based on the theme
           title="Add Task"
         >
           <button
             type="submit" // Ensure this button submits the form
-            className=
-            {`text-sm  cursor-pointer ${inputClass}`}
-            
-        
+            className="text-sm cursor-pointer"
           >
-            AddTask+
+            AddTask ⬇
           </button>
         </div>
       </form>
+
       {/* Error Message Below the Form */}
       {error && (
         <div className="flex justify-center w-full mt-2">

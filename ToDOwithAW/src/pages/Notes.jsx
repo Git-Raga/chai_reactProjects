@@ -61,7 +61,7 @@ function Notes() {
       case 'dark':
         return 'bg-gray-700 text-white border-gray-500';
       case 'green':
-        return 'bg-cyan-100 text-black border-gray-400';
+        return 'bg-green-50 text-black border-gray-400';
       default:
         return 'bg-gray-100 text-black border-gray-300';
     }
@@ -76,7 +76,8 @@ function Notes() {
           <span role="img" aria-label="task" className="ml-2 text-5xl">☑</span>
         </div>
 
-        <NewtaskForm setNotes={setNotes} inputClass={getInputClass()} />
+        <NewtaskForm setNotes={setNotes} inputClass={getInputClass()} theme={theme} />
+
 
         {/* Separator Line */}
         <hr className="my-4 border-gray-300" />

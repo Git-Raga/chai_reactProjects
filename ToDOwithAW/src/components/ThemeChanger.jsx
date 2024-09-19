@@ -23,7 +23,7 @@ function ThemeChanger({ currentTheme, setTheme }) {
       
       <div className="flex flex-col items-center">
         <button
-          className={`w-3 h-3 rounded-full border-2 ${currentTheme === 'purple' ? 'border-white' : 'border-transparent'} bg-cyan-800 focus:outline-none`}
+          className={`w-3 h-3 rounded-full border-2 ${currentTheme === 'green' ? 'border-white' : 'border-transparent'} bg-cyan-800 focus:outline-none`}
           onClick={() => setTheme('green')}
           aria-label="Purple Theme"
         />
