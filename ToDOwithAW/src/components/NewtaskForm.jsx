@@ -6,7 +6,7 @@ function NewtaskForm({ setNotes, inputClass, theme }) {
   const [isCritical, setIsCritical] = useState(false); // State for the checkbox
   const maxLength = 255; // Example max length for the input
   const formRef = useRef(null); // Create a ref for the form
-  console.log("current theme is" + theme)
+ 
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -35,7 +35,7 @@ function NewtaskForm({ setNotes, inputClass, theme }) {
       case "Swetha":
         tskini = "SB";
         break;
-      case "RaghavM":
+      case "Raghav M":
         tskini = "RM";
         break;
       case "Dileep":
@@ -114,7 +114,7 @@ function NewtaskForm({ setNotes, inputClass, theme }) {
       <form
         ref={formRef} // Attach the ref to the form
         className="font-bold rounded-2xl 
-        font-mono border-gray-400 border-2 mt-1 flex items-center gap-2"
+        font-mono border-gray-400 border-2 mt-1 mb-3 flex items-center gap-2"
         onSubmit={handleAdd}
         id="todo-form"
       >
@@ -138,7 +138,7 @@ function NewtaskForm({ setNotes, inputClass, theme }) {
           <option value="Abhishek">Abhishek</option>
           <option value="Muskan">Muskan</option>
           <option value="Swetha">Swetha</option>
-          <option value="RaghavM">RaghavM</option>
+          <option value="Raghav M">Raghav M</option>
           <option value="Dileep">Dileep</option>
           <option value="Bhaskar">Bhaskar</option>
           <option value="Architha">Architha</option>
