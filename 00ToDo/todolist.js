@@ -1,9 +1,8 @@
 
  //<--------------Other Bugs to fix------------->
-// TODO blue highligher color to change for each thee in the task input box
-// TODO:Diff colors for completed tasks for each theme 
-// TODO:Dropdown font to match
-// TODO:use font from this site : https://astro.build/
+
+
+// TODO:3 types of fonts to select - like themes- with local storage
 
 //<--------------Tasks list User Story------------->
 
@@ -13,6 +12,8 @@
 // TODO: show task age in the tasklist view
 // TODO: List the tasks based on the Red tasks first & task age
 // TODO: Star task logic to add
+// TODO: completed tasks should be moved down to the list
+
 
 //<--------------Suggesions & Bug reporting User Story------------->
 // TODO:submit suggesstion/bug/fa request page to create
@@ -26,10 +27,13 @@
 
 //<--------------Dashboard User Story------------->
 // TODO: Assigned Active Tasks, completed 
+// TODO: For each user, assigned tasks, star tasks, Done tasks, completed tasks
 
  
 //<--------------View for others  User Story------------->
 // TODO: Remove Edit and Delete options 
+// TODO: Done tasks, - there should be a completed button - if completed only then it should disappear from user
+
 
 
 

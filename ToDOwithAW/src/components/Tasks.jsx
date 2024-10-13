@@ -63,7 +63,9 @@ function Tasks({ taskData, setNotes, theme }) {  // Highlighted: Accepting theme
         />
         <FaCheckCircle  
           onClick={handleUpdate} 
-          className={`cursor-pointer ${task.completed ? 'text-green-500' : 'text-gray-500'}`} 
+          className={`cursor-pointer ${task.completed ? 'text-green-500' : 'text-gray-500'}
+          text-2xl
+          `} 
         />
         <FaTrashAlt 
           onClick={handleDelete} 
