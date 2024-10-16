@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 
-// Define three different font families
+// Define three different custom font families
 const fonts = {
-  default: "font-sans",
-  serif: "font-serif",
-  mono: "font-mono",
+  titillium: "font-titillium",
+  lato: "font-lato",
+  ubuntu: "font-ubuntu",
 };
 
 function FontChanger() {
   // State to hold the selected font family
-  const [selectedFont, setSelectedFont] = useState(fonts.default);
+  const [selectedFont, setSelectedFont] = useState(fonts.titillium);
 
   // Handle font change
   const handleFontChange = (event) => {
@@ -25,11 +25,11 @@ function FontChanger() {
           <label className="mr-2">
             <input
               type="radio"
-              value={fonts.default}
-              checked={selectedFont === fonts.default}
+              value={fonts.titillium}
+              checked={selectedFont === fonts.titillium}
               onChange={handleFontChange}
             />
-            Default (Sans)
+            titillium (Serif)
           </label>
         </div>
 
@@ -37,11 +37,11 @@ function FontChanger() {
           <label className="mr-2">
             <input
               type="radio"
-              value={fonts.serif}
-              checked={selectedFont === fonts.serif}
+              value={fonts.lato}
+              checked={selectedFont === fonts.lato}
               onChange={handleFontChange}
             />
-            Serif
+            Lato (Sans-serif)
           </label>
         </div>
 
@@ -49,11 +49,11 @@ function FontChanger() {
           <label className="mr-2">
             <input
               type="radio"
-              value={fonts.mono}
-              checked={selectedFont === fonts.mono}
+              value={fonts.ubuntu}
+              checked={selectedFont === fonts.ubuntu}
               onChange={handleFontChange}
             />
-            Monospace
+            Ubuntu (Sans-serif)
           </label>
         </div>
       </div>

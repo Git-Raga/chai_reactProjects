@@ -7,7 +7,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        geist: ['Geist', 'sans-serif'],
+        titillium: ['"Titillium Web"', 'sans-serif'],
+        lato: ['"Lato"', 'sans-serif'],
+        ubuntu: ['"Ubuntu"', 'sans-serif'],
     },
   },
   plugins: [],

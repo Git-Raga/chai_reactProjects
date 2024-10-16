@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
 import db from "../appwrite/database";
+import '@fontsource/tinos'
+import '@fontsource/lato'
+import '@fontsource/ubuntu'
+import '@fontsource/tinos/400.css'; // Regular weight
+import '@fontsource/tinos/700.css'; // Bold weight
+
+
 
 
 import NewtaskForm from "../components/NewtaskForm";
@@ -7,6 +14,7 @@ import { Query } from "appwrite";
 import Tasks from "../components/Tasks";
 import ThemeChanger from '../components/ThemeChanger';
 import Footer from "../components/Footer";
+import FontChanger from "../components/FontChanger";
 
 function Notes() {
   const [notes, setNotes] = useState([]);
@@ -77,8 +85,11 @@ function Notes() {
         <div className="container mx-auto">
           <div className="flex items-center justify-between mb-1">
             <ThemeChanger currentTheme={theme} setTheme={setTheme} />
-            <h1 className="text-2xl font-geist-mono">TaskForce </h1>
+            <h1 className="text-2xl font-geist">TaskForce </h1>
             <span role="img" aria-label="task" className="ml-2 text-5xl">☑</span>
+          </div>
+          <div>
+            <FontChanger />
           </div>
 
           <NewtaskForm setNotes={setNotes} inputClass={getInputClass()} theme={theme} />

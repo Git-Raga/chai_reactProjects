@@ -49,7 +49,8 @@ function Tasks({ taskData, setNotes, theme }) {  // Highlighted: Accepting theme
 
   return (
     <div 
-      className={`flex justify-between items-center w-full font-mono
+      className={`flex justify-between items-center w-full 
+        font-mono
         ${task.completed ? 'text-blue-300 italic' : 'not-italic'}`}  
     >
       <span onClick={handleUpdate} className="cursor-pointer">
