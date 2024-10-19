@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import db from "../appwrite/database";
 
-function NewtaskForm({ setNotes, inputClass, theme }) {
+function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
   const [error, setError] = useState(null);
   const [isCritical, setIsCritical] = useState(false); // State for the checkbox
   const maxLength = 255; // Example max length for the input
@@ -29,22 +29,21 @@ function NewtaskForm({ setNotes, inputClass, theme }) {
       bg: "bg-gray-100",
       text: "text-black",
       hover: "hover:bg-gray-200",
-      selected: "bg-gray-300 text-black", // Text in black for light background
+      selected: "bg-gray-300 text-black",
     },
     dark: {
       bg: "bg-gray-700",
       text: "text-white",
       hover: "hover:bg-gray-600",
-      selected: "bg-gray-500 text-white", // White text for selected item with a darker background
+      selected: "bg-gray-500 text-white",
     },
     green: {
       bg: "bg-cyan-700",
       text: "text-teal-100",
       hover: "hover:bg-teal-500",
-      selected: "bg-teal-800 text-teal-100", // Same teal text but on a darker background
+      selected: "bg-teal-800 text-teal-100",
     },
   };
-  
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -91,19 +90,19 @@ function NewtaskForm({ setNotes, inputClass, theme }) {
 
     if (newTaskText === "") {
       setError("Task cannot be empty");
-      setTimeout(() => setError(null), 1000); // Clear the error after 3 seconds
+      setTimeout(() => setError(null), 1000);
       return;
     }
 
     if (newTaskText.length > maxLength) {
       setError(`Task cannot exceed ${maxLength} characters`);
-      setTimeout(() => setError(null), 2000); // Clear the error after 3 seconds
+      setTimeout(() => setError(null), 2000);
       return;
     }
 
     if (taskOwner === "TaskOwner?") {
       setError("Task owner not assigned");
-      setTimeout(() => setError(null), 2000); // Clear the error after 3 seconds
+      setTimeout(() => setError(null), 2000);
       return;
     }
 
@@ -112,28 +111,28 @@ function NewtaskForm({ setNotes, inputClass, theme }) {
         taskname: newTaskText,
         criticaltask: isCritical,
         taskowner: taskOwner,
-        taskownerinitials: tskini, // Include the initials
+        taskownerinitials: tskini,
       };
 
       const response = await db.todocollection.create(payload);
       if (response) {
         setNotes((prevState) => [response, ...prevState]);
-        formRef.current.reset(); // Reset the form using the ref
-        setIsCritical(false); // Reset checkbox state on submission
-        setSelectedTaskOwner("TaskOwner?"); // Reset dropdown
-        setError(null); // Clear any previous error on successful submission
+        formRef.current.reset();
+        setIsCritical(false);
+        setSelectedTaskOwner("TaskOwner?");
+        setError(null);
       } else {
         throw new Error("Failed to add task");
       }
     } catch (error) {
       console.error(error);
       setError("Failed to add task. Please try again.");
-      setTimeout(() => setError(null), 2000); // Clear the error after 3 seconds
+      setTimeout(() => setError(null), 2000);
     }
   };
 
   const handleCheckboxClick = () => {
-    setIsCritical((prev) => !prev); // Toggle critical state
+    setIsCritical((prev) => !prev);
   };
 
   // Theme-based input border and outline colors
@@ -151,10 +150,10 @@ function NewtaskForm({ setNotes, inputClass, theme }) {
   };
 
   return (
-    <div className="w-full">
+    <div className={`w-full ${selectedFont}`}>
       <form
         ref={formRef}
-        className="font-bold rounded-2xl font-mono border-gray-400 border-2 mt-1 mb-3 flex items-center gap-2"
+        className={`font-bold rounded-2xl border-gray-400 border-2 mt-1 mb-3 flex items-center gap-2 ${selectedFont}`}
         onSubmit={handleAdd}
         id="todo-form"
       >
@@ -162,44 +161,44 @@ function NewtaskForm({ setNotes, inputClass, theme }) {
         <input
           type="text"
           name="newtaskbody"
-          placeholder="🤔 What's the next task?"
+          placeholder="What's the next task?  ✍️"
           maxLength={maxLength}
-          className={`p-2 mt-1 mb-1 ml-1 text-xl text-center flex-grow rounded-3xl ${inputClass} focus:outline-none focus:ring-2 ${inputFocusClasses[theme]}`}
+          className={`p-2 mt-1 mb-1 ml-1 text-xl text-center flex-grow rounded-3xl ${inputClass} focus:outline-none focus:ring-2 ${inputFocusClasses[theme]} ${selectedFont}`}
         />
 
         {/* Custom Dropdown for Task Owners */}
         <div className="relative inline-block w-1/6">
-  <div
-    className={`p-2 mt-1 mb-1 ml-1 text-center flex-none w-full rounded-2xl cursor-pointer ${dropdownColors[theme].bg} ${dropdownColors[theme].text}`}
-    onClick={() => setDropdownOpen((prev) => !prev)}
-  >
-    {selectedTaskOwner}
-  </div>
+          <div
+            className={`p-2 mt-1 mb-1 ml-1 text-center flex-none w-full rounded-2xl cursor-pointer ${dropdownColors[theme].bg} ${dropdownColors[theme].text} ${selectedFont}`}
+            onClick={() => setDropdownOpen((prev) => !prev)}
+          >
+            {selectedTaskOwner}
+          </div>
 
-  {/* Dropdown Options (shown when clicked) */}
-  {dropdownOpen && (
-    <ul className={`absolute z-10 border border-gray-300 mt-1 w-full rounded-lg shadow-lg ${dropdownColors[theme].bg}`}>
-      {taskOwners.map((owner, idx) => (
-        <li
-          key={idx}
-          onClick={() => {
-            setSelectedTaskOwner(owner);
-            setDropdownOpen(false);
-          }}
-          className={`px-4 py-2 cursor-pointer ${dropdownColors[theme].text} ${dropdownColors[theme].hover} font-mono ${
-            owner === selectedTaskOwner ? dropdownColors[theme].selected : ""
-          }`}
-        >
-          {owner}
-        </li>
-      ))}
-    </ul>
-  )}
-</div>
+          {/* Dropdown Options */}
+          {dropdownOpen && (
+            <ul className={`absolute z-10 border border-gray-300 mt-1 w-full rounded-lg shadow-lg ${dropdownColors[theme].bg} ${selectedFont}`}>
+              {taskOwners.map((owner, idx) => (
+                <li
+                  key={idx}
+                  onClick={() => {
+                    setSelectedTaskOwner(owner);
+                    setDropdownOpen(false);
+                  }}
+                  className={`px-4 py-2 cursor-pointer ${dropdownColors[theme].text} ${dropdownColors[theme].hover} ${selectedFont} ${
+                    owner === selectedTaskOwner ? dropdownColors[theme].selected : ""
+                  }`}
+                >
+                  {owner}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
         {/* Checkbox for Critical Task */}
         <div
-          className={`rounded-3xl text-center p-2 mt-1 mb-1 ml-1 mr-2 flex-none ${inputClass}`}
+          className={`rounded-3xl text-center p-2 mt-1 mb-1 ml-1 mr-2 flex-none ${inputClass} ${selectedFont}`}
           onClick={handleCheckboxClick}
           title="Set as CRITICAL Task"
         >
@@ -222,7 +221,7 @@ function NewtaskForm({ setNotes, inputClass, theme }) {
 
         {/* Submit button */}
         <div
-          className={`rounded-xl border-2 text-center p-2 mt-1 mb-1 ml-1 mr-2 flex-none ${buttonBackgroundColor[theme]}`}
+          className={`rounded-xl border-2 text-center p-2 mt-1 mb-1 ml-1 mr-2 flex-none ${buttonBackgroundColor[theme]} ${selectedFont}`}
           title="Add Task"
         >
           <button

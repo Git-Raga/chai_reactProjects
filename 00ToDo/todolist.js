@@ -2,8 +2,6 @@
  //<--------------Other Bugs to fix------------->
 
 
-// TODO:3 types of fonts to select - like themes- with local storage
-
 //<--------------Tasks list User Story------------->
 
 // TODO:Task list to display Task owner Name

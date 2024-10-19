@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from "react";
 import db from "../appwrite/database";
-import '@fontsource/tinos'
-import '@fontsource/lato'
-import '@fontsource/ubuntu'
-import '@fontsource/tinos/400.css'; // Regular weight
-import '@fontsource/tinos/700.css'; // Bold weight
-
-
-
+import '@fontsource/tinos';
+import '@fontsource/lato';
+import '@fontsource/ubuntu';
 
 import NewtaskForm from "../components/NewtaskForm";
 import { Query } from "appwrite";
@@ -19,6 +14,7 @@ import FontChanger from "../components/FontChanger";
 function Notes() {
   const [notes, setNotes] = useState([]);
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light'); 
+  const [selectedFont, setSelectedFont] = useState('font-titillium');
 
   const init = async () => {
     try {
@@ -79,28 +75,26 @@ function Notes() {
   };
 
   return (
-    <div className={`flex flex-col min-h-screen ${getContainerClass()} `}>
+    <div className={`flex flex-col min-h-screen ${getContainerClass()} ${selectedFont}`}>
       {/* Non-scrollable fixed header section */}
-      <div className="fixed top-0 left-0 right-0 bg-opacity-90 z-10 bg-inherit shadow-md ">
-        <div className="container mx-auto">
-          <div className="flex items-center justify-between mb-1">
+      <div className="fixed top-0 left-0 right-0 bg-opacity-90 z-10 bg-inherit shadow-md">
+        <div className="container mx-auto items-center justify-between mb-1">
+          <div className="flex items-center space-x-6">
             <ThemeChanger currentTheme={theme} setTheme={setTheme} />
-            <h1 className="text-2xl font-geist">TaskForce </h1>
+            <FontChanger theme={theme} selectedFont={selectedFont} setSelectedFont={setSelectedFont} /> 
+            <h1 className="text-2xl flex-1 text-center">TaskForce ⚡ </h1>
             <span role="img" aria-label="task" className="ml-2 text-5xl">☑</span>
           </div>
-          <div>
-            <FontChanger />
-          </div>
 
-          <NewtaskForm setNotes={setNotes} inputClass={getInputClass()} theme={theme} />
+          <NewtaskForm setNotes={setNotes} inputClass={getInputClass()} theme={theme} selectedFont={selectedFont} />
+
         </div>
 
         {/* Separator Line */}
-         
       </div>
 
       {/* Scrollable task list with sufficient padding to avoid overlap with header */}
-      <div className="flex-grow container mx-auto pt-32 pb-8 overflow-y-auto">
+      <div className="flex-grow container mx-auto pt-44 pb-8 overflow-y-auto">
         {notes.length === 0 ? (
           <div className="text-center text-gray-500">No tasks found</div>
         ) : (
@@ -113,6 +107,7 @@ function Notes() {
                 taskData={note}  
                 setNotes={setNotes} 
                 theme={theme}
+                selectedFont={selectedFont}
               />
             </div>
           ))

@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import db from "../appwrite/database";
-import { FaTrashAlt } from "react-icons/fa";
-import { FaCheckCircle } from "react-icons/fa";
-import { FaPencilAlt} from "react-icons/fa";  // Highlighted: Importing the "edit" icon
+import { FaTrashAlt, FaCheckCircle, FaPencilAlt } from "react-icons/fa";
 
-function Tasks({ taskData, setNotes, theme }) {  // Highlighted: Accepting theme as a prop
+function Tasks({ taskData, setNotes, theme, selectedFont }) {  // Accepting theme and selectedFont as props
   const [task, setTask] = useState(taskData);
   const [loading, setLoading] = useState(false);
 
@@ -27,13 +25,13 @@ function Tasks({ taskData, setNotes, theme }) {  // Highlighted: Accepting theme
   const handleDelete = async () => {
     try {
       await db.todocollection.delete(task.$id);
-      setNotes(prev => prev.filter(note => note.$id !== task.$id));
+      setNotes((prev) => prev.filter((note) => note.$id !== task.$id));
     } catch (error) {
       console.error("Error deleting task:", error);
     }
   };
 
-  // Highlighted: Determine the color of the edit icon based on the theme
+  // Determine the color of the edit icon based on the theme
   const getEditIconColor = () => {
     switch (theme) {
       case 'light':
@@ -48,29 +46,28 @@ function Tasks({ taskData, setNotes, theme }) {  // Highlighted: Accepting theme
   };
 
   return (
-    <div 
+    <div
       className={`flex justify-between items-center w-full 
-        font-mono
-        ${task.completed ? 'text-blue-300 italic' : 'not-italic'}`}  
+        ${selectedFont}  // Applying the selected font dynamically
+        ${task.completed ? 'text-blue-300 italic' : 'not-italic'}`}
     >
       <span onClick={handleUpdate} className="cursor-pointer">
         {task.completed ? <s>{task.taskname}</s> : <>{task.taskname}</>}
       </span>
 
-      <div className="flex items-center space-x-5">  
-        <FaPencilAlt  // Highlighted: Applying the dynamic color class
-          onClick={() => console.log('Edit task')} 
-          className={`cursor-pointer ${getEditIconColor()}`} 
+      <div className="flex items-center space-x-5">
+        <FaPencilAlt
+          onClick={() => console.log('Edit task')}
+          className={`cursor-pointer ${getEditIconColor()}`}
         />
-        <FaCheckCircle  
-          onClick={handleUpdate} 
+        <FaCheckCircle
+          onClick={handleUpdate}
           className={`cursor-pointer ${task.completed ? 'text-green-500' : 'text-gray-500'}
-          text-2xl
-          `} 
+          text-2xl`}
         />
-        <FaTrashAlt 
-          onClick={handleDelete} 
-          className="text-red-500 cursor-pointer ml-4" 
+        <FaTrashAlt
+          onClick={handleDelete}
+          className="text-red-500 cursor-pointer ml-4"
         />
       </div>
     </div>
