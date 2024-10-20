@@ -4,13 +4,14 @@
 
 //<--------------Tasks list User Story------------->
 
-// TODO:Task list to display Task owner Name
-// TODO:Task list to display Task owner Initial
-// TODO:Task list to display RED Tasks Differently
+
 // TODO: show task age in the tasklist view
-// TODO: List the tasks based on the Red tasks first & task age
-// TODO: Star task logic to add
 // TODO: completed tasks should be moved down to the list
+// TODO: List the tasks based on the Red tasks first & task age
+
+
+// TODO: Star task logic to add
+
 
 
 //<--------------Suggesions & Bug reporting User Story------------->
