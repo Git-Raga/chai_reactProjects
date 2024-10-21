@@ -5,9 +5,11 @@
 //<--------------Tasks list User Story------------->
 
 
-// TODO: show task age in the tasklist view
-// TODO: completed tasks should be moved down to the list
-// TODO: List the tasks based on the Red tasks first & task age
+
+ // TODO: not all the tasks are displayed - to check this
+// TODO: completed tasks should be moved down to the list- while loading
+// TODO: completed tasks should be moved down to the list- after new task
+// TODO: completed tasks should be moved down to the list- after clicking on task complete
 
 
 // TODO: Star task logic to add

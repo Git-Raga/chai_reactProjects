@@ -3,11 +3,11 @@ import db from "../appwrite/database";
 
 function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
   const [error, setError] = useState(null);
-  const [isCritical, setIsCritical] = useState(false); // State for the checkbox
-  const maxLength = 255; // Example max length for the input
-  const formRef = useRef(null); // Create a ref for the form
+  const [isCritical, setIsCritical] = useState(false);
+  const maxLength = 255;
+  const formRef = useRef(null);
   const [selectedTaskOwner, setSelectedTaskOwner] = useState("TaskOwner?");
-  const [dropdownOpen, setDropdownOpen] = useState(false); // State for toggling dropdown
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const taskOwners = [
     "TaskOwner?",
@@ -23,26 +23,10 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
     "Neha",
   ];
 
-  // Theme-based dropdown background and text colors
   const dropdownColors = {
-    light: {
-      bg: "bg-gray-100",
-      text: "text-black",
-      hover: "hover:bg-gray-200",
-      selected: "bg-gray-300 text-black",
-    },
-    dark: {
-      bg: "bg-gray-700",
-      text: "text-white",
-      hover: "hover:bg-gray-600",
-      selected: "bg-gray-500 text-white",
-    },
-    green: {
-      bg: "bg-cyan-700",
-      text: "text-teal-100",
-      hover: "hover:bg-teal-500",
-      selected: "bg-teal-800 text-teal-100",
-    },
+    light: { bg: "bg-gray-100", text: "text-black", hover: "hover:bg-gray-200", selected: "bg-gray-300 text-black" },
+    dark: { bg: "bg-gray-700", text: "text-white", hover: "hover:bg-gray-600", selected: "bg-gray-500 text-white" },
+    green: { bg: "bg-cyan-700", text: "text-teal-100", hover: "hover:bg-teal-500", selected: "bg-teal-800 text-teal-100" },
   };
 
   const handleAdd = async (e) => {
@@ -53,39 +37,17 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
 
     let tskini = "";
     switch (taskOwner) {
-      // Cases for initials assignment (omitted for brevity)
-      case "Abhishek":
-        tskini = "AM";
-        break;
-      case "Neha":
-        tskini = "NA";
-        break;
-      case "Mahima":
-        tskini = "MP";
-        break;
-      case "Suresh":
-        tskini = "SK";
-        break;
-      case "Muskan":
-        tskini = "MD";
-        break;
-      case "Swetha":
-        tskini = "SB";
-        break;
-      case "Raghav M":
-        tskini = "RM";
-        break;
-      case "Dileep":
-        tskini = "DB";
-        break;
-      case "Bhaskar":
-        tskini = "BH";
-        break;
-      case "Architha":
-        tskini = "AS";
-        break;
-      default:
-        tskini = "";
+      case "Abhishek": tskini = "AM"; break;
+      case "Neha": tskini = "NA"; break;
+      case "Mahima": tskini = "MP"; break;
+      case "Suresh": tskini = "SK"; break;
+      case "Muskan": tskini = "MD"; break;
+      case "Swetha": tskini = "SB"; break;
+      case "Raghav M": tskini = "RM"; break;
+      case "Dileep": tskini = "DB"; break;
+      case "Bhaskar": tskini = "BH"; break;
+      case "Architha": tskini = "AS"; break;
+      default: tskini = "";
     }
 
     if (newTaskText === "") {
@@ -112,11 +74,18 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
         criticaltask: isCritical,
         taskowner: taskOwner,
         taskownerinitials: tskini,
+        completed: false,
       };
 
       const response = await db.todocollection.create(payload);
       if (response) {
-        setNotes((prevState) => [response, ...prevState]);
+        setNotes((prevState) => {
+          const taskAge = calculateTaskAge(response.$createdAt);
+          const newTask = { ...response, taskAge };
+          const updatedTasks = [...prevState, newTask]; // Add new task to the end
+          return sortTasks(updatedTasks);
+        });
+
         formRef.current.reset();
         setIsCritical(false);
         setSelectedTaskOwner("TaskOwner?");
@@ -131,18 +100,58 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
     }
   };
 
+  // Function to calculate the task age
+  const calculateTaskAge = (timestamp) => {
+    const startDate = new Date(timestamp);
+    const today = new Date();
+    let dayCount = 0;
+
+    if (isNaN(startDate)) {
+      console.error("Invalid timestamp format:", timestamp);
+      return 0;
+    }
+
+    for (let date = new Date(startDate); date <= today; date.setDate(date.getDate() + 1)) {
+      const dayOfWeek = date.getDay();
+      if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+        dayCount++;
+      }
+    }
+
+    return dayCount;
+  };
+
+  // Sort tasks: critical tasks first, then by task age (descending), then by creation date (ascending), and completed tasks last
+  const sortTasks = (tasks) => {
+    return tasks.sort((a, b) => {
+      // Move completed tasks to the bottom
+      if (a.completed && !b.completed) return 1;
+      if (!a.completed && b.completed) return -1;
+
+      // Critical tasks come first
+      if (a.criticaltask && !b.criticaltask) return -1;
+      if (!a.criticaltask && b.criticaltask) return 1;
+
+      // Sort by task age in descending order
+      if (a.taskAge !== b.taskAge) {
+        return b.taskAge - a.taskAge;
+      }
+
+      // Sort by creation date in ascending order when task ages are equal
+      return new Date(a.$createdAt) - new Date(b.$createdAt);
+    });
+  };
+
   const handleCheckboxClick = () => {
     setIsCritical((prev) => !prev);
   };
 
-  // Theme-based input border and outline colors
   const inputFocusClasses = {
     light: "focus:ring-black focus:border-black",
     dark: "focus:ring-gray-400 focus:border-gray-400",
     green: "focus:ring-teal-600 focus:border-teal-600",
   };
 
-  // Apply button background colors based on theme
   const buttonBackgroundColor = {
     light: "bg-gray-600 hover:bg-gray-900 text-white",
     dark: "bg-white hover:bg-gray-400 text-black",
@@ -157,16 +166,14 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
         onSubmit={handleAdd}
         id="todo-form"
       >
-        {/* Input for task */}
         <input
           type="text"
           name="newtaskbody"
-          placeholder="What's the next task?  ✍️"
+          placeholder="What's the next task? ✍️"
           maxLength={maxLength}
           className={`p-2 mt-1 mb-1 ml-1 text-xl text-center flex-grow rounded-3xl ${inputClass} focus:outline-none focus:ring-2 ${inputFocusClasses[theme]} ${selectedFont}`}
         />
 
-        {/* Custom Dropdown for Task Owners */}
         <div className="relative inline-block w-1/6">
           <div
             className={`p-2 mt-1 mb-1 ml-1 text-center flex-none w-full rounded-2xl cursor-pointer ${dropdownColors[theme].bg} ${dropdownColors[theme].text} ${selectedFont}`}
@@ -175,7 +182,6 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
             {selectedTaskOwner}
           </div>
 
-          {/* Dropdown Options */}
           {dropdownOpen && (
             <ul className={`absolute z-10 border border-gray-300 mt-1 w-full rounded-lg shadow-lg ${dropdownColors[theme].bg} ${selectedFont}`}>
               {taskOwners.map((owner, idx) => (
@@ -196,7 +202,6 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
           )}
         </div>
 
-        {/* Checkbox for Critical Task */}
         <div
           className={`rounded-3xl text-center p-2 mt-1 mb-1 ml-1 mr-2 flex-none ${inputClass} ${selectedFont}`}
           onClick={handleCheckboxClick}
@@ -219,21 +224,16 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
           </label>
         </div>
 
-        {/* Submit button */}
         <div
           className={`rounded-xl border-2 text-center p-2 mt-1 mb-1 ml-1 mr-2 flex-none ${buttonBackgroundColor[theme]} ${selectedFont}`}
           title="Add Task"
         >
-          <button
-            type="submit"
-            className="text-sm cursor-pointer"
-          >
-            AddTask ⬇
+          <button type="submit" className="text-sm cursor-pointer">
+            Add Task ⬇
           </button>
         </div>
       </form>
 
-      {/* Error Message */}
       {error && (
         <div className="flex justify-center w-full mt-2">
           <p className="text-red-500 text-sm text-center">{error}</p>
