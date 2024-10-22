@@ -6,8 +6,12 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
   const [isCritical, setIsCritical] = useState(false);
   const maxLength = 255;
   const formRef = useRef(null);
+  const taskOwnerRef = useRef(null);
+  const criticalCheckboxRef = useRef(null);
+  const addButtonRef = useRef(null);
   const [selectedTaskOwner, setSelectedTaskOwner] = useState("TaskOwner?");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState(0);
 
   const taskOwners = [
     "TaskOwner?",
@@ -100,7 +104,6 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
     }
   };
 
-  // Function to calculate the task age
   const calculateTaskAge = (timestamp) => {
     const startDate = new Date(timestamp);
     const today = new Date();
@@ -121,25 +124,38 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
     return dayCount;
   };
 
-  // Sort tasks: critical tasks first, then by task age (descending), then by creation date (ascending), and completed tasks last
   const sortTasks = (tasks) => {
     return tasks.sort((a, b) => {
-      // Move completed tasks to the bottom
       if (a.completed && !b.completed) return 1;
       if (!a.completed && b.completed) return -1;
 
-      // Critical tasks come first
       if (a.criticaltask && !b.criticaltask) return -1;
       if (!a.criticaltask && b.criticaltask) return 1;
 
-      // Sort by task age in descending order
       if (a.taskAge !== b.taskAge) {
         return b.taskAge - a.taskAge;
       }
 
-      // Sort by creation date in ascending order when task ages are equal
       return new Date(a.$createdAt) - new Date(b.$createdAt);
     });
+  };
+
+  const handleDropdownNavigation = (e) => {
+    if (e.key === "ArrowDown") {
+      setHighlightedIndex((prevIndex) => (prevIndex + 1) % taskOwners.length);
+      e.preventDefault();
+    } else if (e.key === "ArrowUp") {
+      setHighlightedIndex((prevIndex) => (prevIndex - 1 + taskOwners.length) % taskOwners.length);
+      e.preventDefault();
+    } else if (e.key === "Enter") {
+      setSelectedTaskOwner(taskOwners[highlightedIndex]);
+      setDropdownOpen(false);
+      criticalCheckboxRef.current.focus();
+      e.preventDefault();
+    } else if (e.key === "Tab") {
+      criticalCheckboxRef.current.focus();
+      e.preventDefault();
+    }
   };
 
   const handleCheckboxClick = () => {
@@ -172,12 +188,24 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
           placeholder="What's the next task? ✍️"
           maxLength={maxLength}
           className={`p-2 mt-1 mb-1 ml-1 text-xl text-center flex-grow rounded-3xl ${inputClass} focus:outline-none focus:ring-2 ${inputFocusClasses[theme]} ${selectedFont}`}
+          tabIndex="0"
+          onKeyDown={(e) => {
+            if (e.key === "Tab") {
+              taskOwnerRef.current.focus();
+              e.preventDefault();
+            }
+          }}
         />
 
-        <div className="relative inline-block w-1/6">
+        <div
+          ref={taskOwnerRef}
+          className="relative inline-block w-1/6"
+          tabIndex="0"
+          onClick={() => setDropdownOpen((prev) => !prev)}
+          onKeyDown={handleDropdownNavigation}
+        >
           <div
             className={`p-2 mt-1 mb-1 ml-1 text-center flex-none w-full rounded-2xl cursor-pointer ${dropdownColors[theme].bg} ${dropdownColors[theme].text} ${selectedFont}`}
-            onClick={() => setDropdownOpen((prev) => !prev)}
           >
             {selectedTaskOwner}
           </div>
@@ -190,10 +218,9 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
                   onClick={() => {
                     setSelectedTaskOwner(owner);
                     setDropdownOpen(false);
+                    criticalCheckboxRef.current.focus();
                   }}
-                  className={`px-4 py-2 cursor-pointer ${dropdownColors[theme].text} ${dropdownColors[theme].hover} ${selectedFont} ${
-                    owner === selectedTaskOwner ? dropdownColors[theme].selected : ""
-                  }`}
+                  className={`px-4 py-2 cursor-pointer ${dropdownColors[theme].text} ${idx === highlightedIndex ? 'bg-blue-300' : dropdownColors[theme].hover} ${selectedFont}`}
                 >
                   {owner}
                 </li>
@@ -203,7 +230,9 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
         </div>
 
         <div
+          ref={criticalCheckboxRef}
           className={`rounded-3xl text-center p-2 mt-1 mb-1 ml-1 mr-2 flex-none ${inputClass} ${selectedFont}`}
+          tabIndex="0"
           onClick={handleCheckboxClick}
           title="Set as CRITICAL Task"
         >
@@ -220,13 +249,20 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
             className="text-sm cursor-pointer"
             onClick={(e) => e.stopPropagation()}
           >
-            ❗
+            ⚠️
           </label>
         </div>
 
         <div
+          ref={addButtonRef}
           className={`rounded-xl border-2 text-center p-2 mt-1 mb-1 ml-1 mr-2 flex-none ${buttonBackgroundColor[theme]} ${selectedFont}`}
+          tabIndex="0"
           title="Add Task"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleAdd(e);
+            }
+          }}
         >
           <button type="submit" className="text-sm cursor-pointer">
             Add Task ⬇

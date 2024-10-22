@@ -3,12 +3,11 @@
 
 
 //<--------------Tasks list User Story------------->
+// TODO: TAB should be task owner and then once in critical task and then add task (now 2 times in critial task)
+// TODO: the tab and keyboard enter should work
+// TODO: alert for task added - some animation
+// TODO: some animation for task completion - like trailhead
 
-
-
- // TODO: not all the tasks are displayed - to check this
-// TODO: completed tasks should be moved down to the list- while loading
-// TODO: completed tasks should be moved down to the list- after new task
 // TODO: completed tasks should be moved down to the list- after clicking on task complete
 
 

@@ -18,34 +18,31 @@ function Notes() {
 
   const init = async () => {
     try {
-      const response = await db.todocollection.list([
+      const limitPerPage = 100; // Set a high limit to fetch more documents in one call
+      let response = await db.todocollection.list([
+        Query.limit(limitPerPage),
         Query.orderDesc("$createdAt"),
       ]);
-      const tasks = response.documents.map((task) => {
+
+      let allDocuments = response.documents;
+
+      // If there are more entries than the limit, continue fetching until all are retrieved
+      while (response.total > allDocuments.length) {
+        response = await db.todocollection.list([
+          Query.limit(limitPerPage),
+          Query.offset(allDocuments.length),
+          Query.orderDesc("$createdAt"),
+        ]);
+        allDocuments = allDocuments.concat(response.documents);
+      }
+
+      const tasks = allDocuments.map((task) => {
         const taskAge = calculateTaskAge(task.$createdAt);
         return { ...task, taskAge };
       });
 
-      // Sort tasks: critical first, then by task age (descending), and if equal, by creation date (ascending).
-      // Completed tasks should always appear at the bottom of the list.
-      const sortedTasks = tasks.sort((a, b) => {
-        // Completed tasks should be last
-        if (a.completed && !b.completed) return 1;
-        if (!a.completed && b.completed) return -1;
-
-        // Critical tasks come before non-critical tasks
-        if (a.criticaltask && !b.criticaltask) return -1;
-        if (!a.criticaltask && b.criticaltask) return 1;
-
-        // Sort by task age in descending order
-        if (a.taskAge !== b.taskAge) {
-          return b.taskAge - a.taskAge;
-        }
-
-        // If task age is the same, sort by creation date in ascending order
-        return new Date(a.$createdAt) - new Date(b.$createdAt);
-      });
-
+      // Sort tasks: critical first, then by task age (descending), and if equal, by creation date (ascending)
+      const sortedTasks = sortTasks(tasks);
       setNotes(sortedTasks);
     } catch (error) {
       console.error("Error fetching documents:", error);
@@ -78,6 +75,22 @@ function Notes() {
     }
 
     return dayCount;
+  };
+
+  const sortTasks = (tasks) => {
+    return tasks.sort((a, b) => {
+      if (a.completed && !b.completed) return 1;
+      if (!a.completed && b.completed) return -1;
+
+      if (a.criticaltask && !b.criticaltask) return -1;
+      if (!a.criticaltask && b.criticaltask) return 1;
+
+      if (a.taskAge !== b.taskAge) {
+        return b.taskAge - a.taskAge;
+      } else {
+        return new Date(a.$createdAt) - new Date(b.$createdAt);
+      }
+    });
   };
 
   const getContainerClass = () => {
@@ -133,8 +146,6 @@ function Notes() {
 
           <NewtaskForm setNotes={setNotes} inputClass={getInputClass()} theme={theme} selectedFont={selectedFont} />
         </div>
-
-        {/* Separator Line */}
       </div>
 
       {/* Scrollable task list with sufficient padding to avoid overlap with header */}
