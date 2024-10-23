@@ -3,8 +3,7 @@
 
 
 //<--------------Tasks list User Story------------->
-// TODO: TAB should be task owner and then once in critical task and then add task (now 2 times in critial task)
-// TODO: the tab and keyboard enter should work
+
 // TODO: alert for task added - some animation
 // TODO: some animation for task completion - like trailhead
 

@@ -3,6 +3,7 @@ import db from "../appwrite/database";
 
 function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null); // State for success message
   const [isCritical, setIsCritical] = useState(false);
   const maxLength = 255;
   const formRef = useRef(null);
@@ -86,13 +87,15 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
         setNotes((prevState) => {
           const taskAge = calculateTaskAge(response.$createdAt);
           const newTask = { ...response, taskAge };
-          const updatedTasks = [...prevState, newTask]; // Add new task to the end
+          const updatedTasks = [...prevState, newTask];
           return sortTasks(updatedTasks);
         });
 
         formRef.current.reset();
         setIsCritical(false);
         setSelectedTaskOwner("TaskOwner?");
+        setSuccess("Task added successfully!"); // Set the success message
+        setTimeout(() => setSuccess(null), 2000); // Clear the success message after 2 seconds
         setError(null);
       } else {
         throw new Error("Failed to add task");
@@ -140,6 +143,10 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
     });
   };
 
+  const handleCheckboxClick = () => {
+    setIsCritical((prev) => !prev);
+  };
+
   const handleDropdownNavigation = (e) => {
     if (e.key === "ArrowDown") {
       setHighlightedIndex((prevIndex) => (prevIndex + 1) % taskOwners.length);
@@ -152,14 +159,7 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
       setDropdownOpen(false);
       criticalCheckboxRef.current.focus();
       e.preventDefault();
-    } else if (e.key === "Tab") {
-      criticalCheckboxRef.current.focus();
-      e.preventDefault();
     }
-  };
-
-  const handleCheckboxClick = () => {
-    setIsCritical((prev) => !prev);
   };
 
   const inputFocusClasses = {
@@ -172,6 +172,16 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
     light: "bg-gray-600 hover:bg-gray-900 text-white",
     dark: "bg-white hover:bg-gray-400 text-black",
     green: "bg-teal-700 hover:bg-teal-600 text-teal-100",
+  };
+
+  const handleSelectOwner = (owner) => {
+    setSelectedTaskOwner(owner);
+    setDropdownOpen(false);
+    setTimeout(() => {
+      if (criticalCheckboxRef.current) {
+        criticalCheckboxRef.current.focus();
+      }
+    }, 100);
   };
 
   return (
@@ -200,9 +210,23 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
         <div
           ref={taskOwnerRef}
           className="relative inline-block w-1/6"
-          tabIndex="0"
+          tabIndex="1"
           onClick={() => setDropdownOpen((prev) => !prev)}
-          onKeyDown={handleDropdownNavigation}
+          onBlur={() => setDropdownOpen(false)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              if (!dropdownOpen) {
+                setDropdownOpen(true);
+              } else {
+                setSelectedTaskOwner(taskOwners[highlightedIndex]);
+                setDropdownOpen(false);
+                criticalCheckboxRef.current.focus();
+              }
+            } else {
+              handleDropdownNavigation(e);
+            }
+          }}
         >
           <div
             className={`p-2 mt-1 mb-1 ml-1 text-center flex-none w-full rounded-2xl cursor-pointer ${dropdownColors[theme].bg} ${dropdownColors[theme].text} ${selectedFont}`}
@@ -215,12 +239,10 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
               {taskOwners.map((owner, idx) => (
                 <li
                   key={idx}
-                  onClick={() => {
-                    setSelectedTaskOwner(owner);
-                    setDropdownOpen(false);
-                    criticalCheckboxRef.current.focus();
-                  }}
-                  className={`px-4 py-2 cursor-pointer ${dropdownColors[theme].text} ${idx === highlightedIndex ? 'bg-blue-300' : dropdownColors[theme].hover} ${selectedFont}`}
+                  onClick={() => handleSelectOwner(owner)}
+                  className={`px-4 py-2 cursor-pointer ${dropdownColors[theme].text} ${dropdownColors[theme].hover} ${selectedFont} ${
+                    idx === highlightedIndex ? dropdownColors[theme].selected : ""
+                  }`}
                 >
                   {owner}
                 </li>
@@ -230,10 +252,7 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
         </div>
 
         <div
-          ref={criticalCheckboxRef}
           className={`rounded-3xl text-center p-2 mt-1 mb-1 ml-1 mr-2 flex-none ${inputClass} ${selectedFont}`}
-          tabIndex="0"
-          onClick={handleCheckboxClick}
           title="Set as CRITICAL Task"
         >
           <input
@@ -241,7 +260,15 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
             id="critical"
             name="critical"
             checked={isCritical}
-            onChange={() => {}}
+            tabIndex="2"
+            ref={criticalCheckboxRef}
+            onChange={handleCheckboxClick}
+            onKeyDown={(e) => {
+              if (e.key === "Tab") {
+                addButtonRef.current.focus();
+                e.preventDefault();
+              }
+            }}
             className="mr-1 text-red-500 h-3 w-6 appearance-none border-2 border-gray-300 rounded checked:bg-red-500 checked:border-red-500"
           />
           <label
@@ -256,7 +283,7 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
         <div
           ref={addButtonRef}
           className={`rounded-xl border-2 text-center p-2 mt-1 mb-1 ml-1 mr-2 flex-none ${buttonBackgroundColor[theme]} ${selectedFont}`}
-          tabIndex="0"
+          tabIndex="3"
           title="Add Task"
           onKeyDown={(e) => {
             if (e.key === "Enter") {
@@ -273,6 +300,12 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
       {error && (
         <div className="flex justify-center w-full mt-2">
           <p className="text-red-500 text-sm text-center">{error}</p>
+        </div>
+      )}
+
+      {success && (
+        <div className="flex justify-center w-full mt-2">
+          <p className="text-green-500 text-sm text-center">{success}</p>
         </div>
       )}
     </div>
