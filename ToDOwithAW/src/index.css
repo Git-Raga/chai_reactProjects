@@ -2,4 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
- 
+ @keyframes rotate-animation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-rotate {
+  animation: rotate-animation 0.5s ease-in-out;
+}

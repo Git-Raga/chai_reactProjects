@@ -15,10 +15,11 @@ function Notes() {
   const [notes, setNotes] = useState([]);
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light'); 
   const [selectedFont, setSelectedFont] = useState('font-titillium');
+  const [rotate, setRotate] = useState(false); // State to trigger rotation
 
   const init = async () => {
     try {
-      const limitPerPage = 100; // Set a high limit to fetch more documents in one call
+      const limitPerPage = 100;
       let response = await db.todocollection.list([
         Query.limit(limitPerPage),
         Query.orderDesc("$createdAt"),
@@ -26,7 +27,6 @@ function Notes() {
 
       let allDocuments = response.documents;
 
-      // If there are more entries than the limit, continue fetching until all are retrieved
       while (response.total > allDocuments.length) {
         response = await db.todocollection.list([
           Query.limit(limitPerPage),
@@ -41,7 +41,6 @@ function Notes() {
         return { ...task, taskAge };
       });
 
-      // Sort tasks: critical first, then by task age (descending), and if equal, by creation date (ascending)
       const sortedTasks = sortTasks(tasks);
       setNotes(sortedTasks);
     } catch (error) {
@@ -141,10 +140,26 @@ function Notes() {
             <ThemeChanger currentTheme={theme} setTheme={setTheme} />
             <FontChanger theme={theme} selectedFont={selectedFont} setSelectedFont={setSelectedFont} /> 
             <h1 className="text-2xl flex-1 text-center">TaskForce ⚡ </h1>
-            <span role="img" aria-label="task" className="ml-2 text-5xl">☑</span>
+            {/* Tick icon with rotation animation */}
+            <span
+              role="img"
+              aria-label="task"
+              className={`ml-2 text-5xl ${rotate ? 'animate-rotate' : ''}`}
+            >
+              ☑
+            </span>
           </div>
 
-          <NewtaskForm setNotes={setNotes} inputClass={getInputClass()} theme={theme} selectedFont={selectedFont} />
+          <NewtaskForm 
+            setNotes={(updatedNotes) => {
+              setNotes(updatedNotes);
+              setRotate(true); // Trigger rotation
+              setTimeout(() => setRotate(false), 500); // Reset rotation after 0.5s
+            }}
+            inputClass={getInputClass()}
+            theme={theme}
+            selectedFont={selectedFont}
+          />
         </div>
       </div>
 
