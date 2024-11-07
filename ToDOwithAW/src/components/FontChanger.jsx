@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
-import { FaFont } from 'react-icons/fa'; // Using react-icons for simplicity
+import { FaFont } from 'react-icons/fa'; 
 
-// Define three different custom font families
+// Define custom font families
 const fonts = {
   titillium: "font-titillium",
-  lato: "font-lato",
-  ubuntu: "font-ubuntu",
+  bonaNovaSC: "font-bonaNovaSC uppercase", // Ensure uppercase is applied
+  lobsterTwo: "font-lobsterTwo", // Updated to Lobster Two
 };
 
 // Define colors for the icons based on the theme
@@ -24,7 +24,6 @@ const getIconColor = (theme) => {
 
 function FontChanger({ theme, selectedFont, setSelectedFont }) {
   
-  // Retrieve the font from local storage when the component mounts
   useEffect(() => {
     const storedFont = localStorage.getItem('selectedFont');
     if (storedFont && fonts[storedFont]) {
@@ -32,13 +31,11 @@ function FontChanger({ theme, selectedFont, setSelectedFont }) {
     }
   }, [setSelectedFont]);
 
-  // Handle font change
   const handleFontChange = (font) => {
     setSelectedFont(font);
     localStorage.setItem('selectedFont', Object.keys(fonts).find(key => fonts[key] === font));
   };
 
-  // Determine the icon color based on the theme
   const iconColor = getIconColor(theme);
 
   return (
@@ -50,16 +47,16 @@ function FontChanger({ theme, selectedFont, setSelectedFont }) {
           {selectedFont === fonts.titillium && <span className="w-full h-1 mt-1 bg-blue-200"></span>}
         </button>
 
-        {/* Icon for Lato */}
-        <button onClick={() => handleFontChange(fonts.lato)} className="focus:outline-none flex flex-col items-center">
-          <span className={`${iconColor} ${selectedFont === fonts.lato ? 'font-bold' : ''} text-sm`}>f</span>
-          {selectedFont === fonts.lato && <span className="w-full h-1 mt-1 bg-blue-200"></span>}
+        {/* Icon for Bona Nova SC with uppercase */}
+        <button onClick={() => handleFontChange(fonts.bonaNovaSC)} className="focus:outline-none flex flex-col items-center">
+          <span className={`${iconColor} ${selectedFont === fonts.bonaNovaSC ? 'font-bold uppercase' : ''} text-sm`}>🇫</span>
+          {selectedFont === fonts.bonaNovaSC && <span className="w-full h-1 mt-1 bg-blue-200"></span>}
         </button>
 
-        {/* Icon for Ubuntu */}
-        <button onClick={() => handleFontChange(fonts.ubuntu)} className="focus:outline-none flex flex-col items-center">
-          <span className={`${iconColor} ${selectedFont === fonts.ubuntu ? 'font-bold' : ''} text-sm`}>🇫</span>
-          {selectedFont === fonts.ubuntu && <span className="w-full h-1 mt-1 bg-blue-200"></span>}
+        {/* Icon for Lobster Two */}
+        <button onClick={() => handleFontChange(fonts.lobsterTwo)} className="focus:outline-none flex flex-col items-center">
+          <span className={`${iconColor} ${selectedFont === fonts.lobsterTwo ? '' : ''} text-sm`}>f</span> {/* Removed font-bold */}
+          {selectedFont === fonts.lobsterTwo && <span className="w-full h-1 mt-1 bg-blue-200"></span>}
         </button>
       </div>
     </div>

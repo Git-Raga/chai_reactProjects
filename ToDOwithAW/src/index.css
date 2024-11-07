@@ -1,8 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+ 
 
- @keyframes rotate-animation {
+@keyframes rotate-tick {
   from {
     transform: rotate(0deg);
   }
@@ -10,7 +11,15 @@
     transform: rotate(360deg);
   }
 }
+@keyframes bolt-scale {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(2);
+  }
+}
 
-.animate-rotate {
-  animation: rotate-animation 0.5s ease-in-out;
+.animate-bolt-scale {
+  animation: bolt-scale 0.5s ease-in-out;
 }

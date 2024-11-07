@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import db from "../appwrite/database";
 import { FaTrashAlt, FaCheckCircle, FaPencilAlt } from "react-icons/fa";
 
-function Tasks({ taskData, setNotes, theme, selectedFont }) {
+function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnimation }) {
   const [task, setTask] = useState(taskData);
   const [loading, setLoading] = useState(false);
-  const [taskAge, setTaskAge] = useState(0);  // State to hold the task age
+  const [taskAge, setTaskAge] = useState(0);
 
   useEffect(() => {
     const calculateTaskAge = (timestamp) => {
@@ -36,12 +36,14 @@ function Tasks({ taskData, setNotes, theme, selectedFont }) {
 
   const handleUpdate = async () => {
     const taskdone = !task.completed;
-
     setTask({ ...task, completed: taskdone });
     setLoading(true);
 
     try {
       await db.todocollection.update(task.$id, { completed: taskdone });
+      if (taskdone) {
+        triggerHeaderTickAnimation(); // Trigger ☑ icon rotation in header when task is marked complete
+      }
     } catch (error) {
       console.error("Error updating task:", error);
       setTask({ ...task, completed: !taskdone });
@@ -96,10 +98,7 @@ function Tasks({ taskData, setNotes, theme, selectedFont }) {
 
   return (
     <div className={`w-full mr-2 ${selectedFont}`}>
-      <div
-        className={`flex justify-between items-center
-          ${task.completed ? 'text-green-700 italic' : 'not-italic'}`}
-      >
+      <div className={`flex justify-between items-center ${task.completed ? 'text-green-700 italic' : 'not-italic'}`}>
         <div className="flex items-center flex-1">
           {task.criticaltask && (
             <span className="text-white bg-red-800 px-2 py-1 rounded mr-2 text-xs font-semibold">

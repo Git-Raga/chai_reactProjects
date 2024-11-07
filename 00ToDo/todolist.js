@@ -4,11 +4,11 @@
 
 //<--------------Tasks list User Story------------->
 
- // TODO: one font to change to handwriting
+ 
 // TODO: some animation for task completion - like trailhead
 
-// TODO: completed tasks should be moved down to the list- after clicking on task complete
 
+// TODO: completed tasks should be moved down to the list- after clicking on task complete
 
 // TODO: Star task logic to add
 

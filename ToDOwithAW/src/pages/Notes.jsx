@@ -15,7 +15,8 @@ function Notes() {
   const [notes, setNotes] = useState([]);
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light'); 
   const [selectedFont, setSelectedFont] = useState('font-titillium');
-  const [rotate, setRotate] = useState(false); // State to trigger rotation
+  const [animateBolt, setAnimateBolt] = useState(false);
+  const [rotateTick, setRotateTick] = useState(false); // Add state for ☑ rotation
 
   const init = async () => {
     try {
@@ -92,6 +93,11 @@ function Notes() {
     });
   };
 
+  const triggerHeaderTickAnimation = () => {
+    setRotateTick(true);
+    setTimeout(() => setRotateTick(false), 500); // Reset rotation after animation
+  };
+
   const getContainerClass = () => {
     switch (theme) {
       case 'light':
@@ -139,12 +145,15 @@ function Notes() {
           <div className="flex items-center space-x-6">
             <ThemeChanger currentTheme={theme} setTheme={setTheme} />
             <FontChanger theme={theme} selectedFont={selectedFont} setSelectedFont={setSelectedFont} /> 
-            <h1 className="text-2xl flex-1 text-center">TaskForce ⚡ </h1>
-            {/* Tick icon with rotation animation */}
+            <h1 className="text-2xl flex-1 text-center">
+              TaskForce{" "}
+              <span className={`inline-block ${animateBolt ? 'animate-bolt-scale' : ''}`}>⚡</span>
+            </h1>
+            {/* Right-side tick icon with rotation */}
             <span
               role="img"
               aria-label="task"
-              className={`ml-2 text-5xl ${rotate ? 'animate-rotate' : ''}`}
+              className={`ml-2 text-5xl ${rotateTick ? 'animate-rotate' : ''}`}
             >
               ☑
             </span>
@@ -153,8 +162,8 @@ function Notes() {
           <NewtaskForm 
             setNotes={(updatedNotes) => {
               setNotes(updatedNotes);
-              setRotate(true); // Trigger rotation
-              setTimeout(() => setRotate(false), 500); // Reset rotation after 0.5s
+              setAnimateBolt(true); // Trigger bolt animation
+              setTimeout(() => setAnimateBolt(false), 300); // Reset animation after 0.3s
             }}
             inputClass={getInputClass()}
             theme={theme}
@@ -178,6 +187,7 @@ function Notes() {
                 setNotes={setNotes} 
                 theme={theme}
                 selectedFont={selectedFont}
+                triggerHeaderTickAnimation={triggerHeaderTickAnimation}
               />
             </div>
           ))

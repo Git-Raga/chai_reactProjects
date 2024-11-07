@@ -8,10 +8,10 @@ export default {
     extend: {
       fontFamily: {
         titillium: ['"Titillium Web"', 'sans-serif'],
-        lato: ['"Lato"', 'sans-serif'],
-        ubuntu: ['"Ubuntu"', 'sans-serif'],
+        bonaNovaSC: ['"Bona Nova SC"', 'serif'],
+        lobsterTwo: ['"Lobster Two"', 'cursive'], // Added Lobster Two
+      },
     },
   },
   plugins: [],
-}
-}
+};
