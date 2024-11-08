@@ -16,7 +16,7 @@ function Notes() {
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light'); 
   const [selectedFont, setSelectedFont] = useState('font-titillium');
   const [animateBolt, setAnimateBolt] = useState(false);
-  const [rotateTick, setRotateTick] = useState(false); // Add state for ☑ rotation
+  const [rotateTick, setRotateTick] = useState(false);
 
   const init = async () => {
     try {
@@ -37,10 +37,12 @@ function Notes() {
         allDocuments = allDocuments.concat(response.documents);
       }
 
-      const tasks = allDocuments.map((task) => {
-        const taskAge = calculateTaskAge(task.$createdAt);
-        return { ...task, taskAge };
-      });
+      const tasks = allDocuments
+        .filter(task => task && task.$createdAt)
+        .map((task) => {
+          const taskAge = calculateTaskAge(task.$createdAt);
+          return { ...task, taskAge };
+        });
 
       const sortedTasks = sortTasks(tasks);
       setNotes(sortedTasks);
@@ -81,21 +83,15 @@ function Notes() {
     return tasks.sort((a, b) => {
       if (a.completed && !b.completed) return 1;
       if (!a.completed && b.completed) return -1;
-
       if (a.criticaltask && !b.criticaltask) return -1;
       if (!a.criticaltask && b.criticaltask) return 1;
-
-      if (a.taskAge !== b.taskAge) {
-        return b.taskAge - a.taskAge;
-      } else {
-        return new Date(a.$createdAt) - new Date(b.$createdAt);
-      }
+      return b.taskAge - a.taskAge || new Date(a.$createdAt) - new Date(b.$createdAt);
     });
   };
 
   const triggerHeaderTickAnimation = () => {
     setRotateTick(true);
-    setTimeout(() => setRotateTick(false), 500); // Reset rotation after animation
+    setTimeout(() => setRotateTick(false), 500);
   };
 
   const getContainerClass = () => {
@@ -139,7 +135,6 @@ function Notes() {
 
   return (
     <div className={`flex flex-col min-h-screen ${getContainerClass()} ${selectedFont}`}>
-      {/* Non-scrollable fixed header section */}
       <div className="fixed top-0 left-0 right-0 bg-opacity-90 z-10 bg-inherit shadow-md">
         <div className="container mx-auto items-center justify-between mb-1">
           <div className="flex items-center space-x-6">
@@ -149,7 +144,6 @@ function Notes() {
               TaskForce{" "}
               <span className={`inline-block ${animateBolt ? 'animate-bolt-scale' : ''}`}>⚡</span>
             </h1>
-            {/* Right-side tick icon with rotation */}
             <span
               role="img"
               aria-label="task"
@@ -162,8 +156,8 @@ function Notes() {
           <NewtaskForm 
             setNotes={(updatedNotes) => {
               setNotes(updatedNotes);
-              setAnimateBolt(true); // Trigger bolt animation
-              setTimeout(() => setAnimateBolt(false), 300); // Reset animation after 0.3s
+              setAnimateBolt(true);
+              setTimeout(() => setAnimateBolt(false), 300);
             }}
             inputClass={getInputClass()}
             theme={theme}
@@ -172,29 +166,29 @@ function Notes() {
         </div>
       </div>
 
-      {/* Scrollable task list with sufficient padding to avoid overlap with header */}
       <div className="flex-grow container mx-auto pt-44 pb-8 overflow-y-auto">
         {notes.length === 0 ? (
           <div className="text-center text-gray-500">No tasks found</div>
         ) : (
           notes.map((note) => (
-            <div
-              key={note.$id}
-              className={`p-1 mb-2 rounded-xl shadow flex justify-between items-center text-xm pl-3 ${getTaskClass()}`}
-            >
-              <Tasks 
-                taskData={note}  
-                setNotes={setNotes} 
-                theme={theme}
-                selectedFont={selectedFont}
-                triggerHeaderTickAnimation={triggerHeaderTickAnimation}
-              />
-            </div>
+            note && note.$createdAt && (
+              <div
+                key={note.$id}
+                className={`p-1 mb-2 rounded-xl shadow flex justify-between items-center text-xm pl-3 ${getTaskClass()}`}
+              >
+                <Tasks 
+                  taskData={note}  
+                  setNotes={setNotes} 
+                  theme={theme}
+                  selectedFont={selectedFont}
+                  triggerHeaderTickAnimation={triggerHeaderTickAnimation}
+                />
+              </div>
+            )
           ))
         )}
       </div>
 
-      {/* Fixed Footer */}
       <Footer theme={theme}/>
     </div>
   );

@@ -1,11 +1,4 @@
 
- //<--------------Other Bugs to fix------------->
-
-
-//<--------------Tasks list User Story------------->
-
- 
-// TODO: some animation for task completion - like trailhead
 
 
 // TODO: completed tasks should be moved down to the list- after clicking on task complete
