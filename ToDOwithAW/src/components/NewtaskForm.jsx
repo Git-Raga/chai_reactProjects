@@ -1,9 +1,54 @@
 import React, { useState, useRef } from "react";
 import db from "../appwrite/database";
+import { FaCalendarAlt } from "react-icons/fa";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
+// Function to manage calendar colors based on theme
+const getCalendarColors = (theme) => {
+  switch (theme) {
+    case 'light':
+      return {
+        bg: 'bg-white',
+        text: 'text-black',
+        border: 'border-gray-300',
+        selectedDateBg: 'bg-blue-500',
+        selectedDateText: 'text-white',
+        buttonBg: 'bg-gray-700 hover:bg-gray-800 text-white',
+      };
+    case 'dark':
+      return {
+        bg: 'bg-gray-800',
+        text: 'text-gray-400',
+        border: 'border-gray-600',
+        selectedDateBg: 'bg-indigo-500',
+        selectedDateText: 'text-gray-100',
+        buttonBg: 'bg-gray-600 hover:bg-gray-700 text-white',
+      };
+    case 'green':
+      return {
+        bg: 'bg-cyan-900',
+        text: 'text-teal-500',
+        border: 'border-teal-300',
+        selectedDateBg: 'bg-teal-500',
+        selectedDateText: 'text-teal-100',
+        buttonBg: 'bg-teal-700 hover:bg-teal-600 text-teal-100',
+      };
+    default:
+      return {
+        bg: 'bg-white',
+        text: 'text-black',
+        border: 'border-gray-300',
+        selectedDateBg: 'bg-blue-500',
+        selectedDateText: 'text-white',
+        buttonBg: 'bg-gray-700 hover:bg-gray-800 text-white',
+      };
+  }
+};
 
 function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
   const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null); // State for success message
+  const [success, setSuccess] = useState(null);
   const [isCritical, setIsCritical] = useState(false);
   const maxLength = 255;
   const formRef = useRef(null);
@@ -13,6 +58,11 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
   const [selectedTaskOwner, setSelectedTaskOwner] = useState("TaskOwner?");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+
+  // Get colors based on the current theme
+  const calendarColors = getCalendarColors(theme);
 
   const taskOwners = [
     "TaskOwner?",
@@ -33,6 +83,15 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
     dark: { bg: "bg-gray-700", text: "text-white", hover: "hover:bg-gray-600", selected: "bg-gray-500 text-white" },
     green: { bg: "bg-cyan-700", text: "text-teal-100", hover: "hover:bg-teal-500", selected: "bg-teal-800 text-teal-100" },
   };
+
+  const buttonBackgroundColor = {
+    light: "bg-gray-600 hover:bg-gray-900 text-white",
+    dark: "bg-white hover:bg-gray-400 text-black",
+    green: "bg-teal-700 hover:bg-teal-600 text-teal-100",
+  };
+
+  const openCalendar = () => setCalendarOpen(true);
+  const closeCalendar = () => setCalendarOpen(false);
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -80,6 +139,9 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
         taskowner: taskOwner,
         taskownerinitials: tskini,
         completed: false,
+        duedate: selectedDate ? selectedDate.toISOString().split("T")[0] : null,
+
+        //if selected, else null
       };
 
       const response = await db.todocollection.create(payload);
@@ -94,14 +156,15 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
         formRef.current.reset();
         setIsCritical(false);
         setSelectedTaskOwner("TaskOwner?");
-        setSuccess("Task added successfully!"); // Set the success message
-        setTimeout(() => setSuccess(null), 2000); // Clear the success message after 2 seconds
+        setSuccess("Task added successfully!");
+        setTimeout(() => setSuccess(null), 2000);
         setError(null);
+        setSelectedDate(null); // Reset the selected date after adding the task
       } else {
         throw new Error("Failed to add task");
       }
     } catch (error) {
-      console.error(error);
+      console.error("Error adding task:", error);
       setError("Failed to add task. Please try again.");
       setTimeout(() => setError(null), 2000);
     }
@@ -143,47 +206,6 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
     });
   };
 
-  const handleCheckboxClick = () => {
-    setIsCritical((prev) => !prev);
-  };
-
-  const handleDropdownNavigation = (e) => {
-    if (e.key === "ArrowDown") {
-      setHighlightedIndex((prevIndex) => (prevIndex + 1) % taskOwners.length);
-      e.preventDefault();
-    } else if (e.key === "ArrowUp") {
-      setHighlightedIndex((prevIndex) => (prevIndex - 1 + taskOwners.length) % taskOwners.length);
-      e.preventDefault();
-    } else if (e.key === "Enter") {
-      setSelectedTaskOwner(taskOwners[highlightedIndex]);
-      setDropdownOpen(false);
-      criticalCheckboxRef.current.focus();
-      e.preventDefault();
-    }
-  };
-
-  const inputFocusClasses = {
-    light: "focus:ring-black focus:border-black",
-    dark: "focus:ring-gray-400 focus:border-gray-400",
-    green: "focus:ring-teal-600 focus:border-teal-600",
-  };
-
-  const buttonBackgroundColor = {
-    light: "bg-gray-600 hover:bg-gray-900 text-white",
-    dark: "bg-white hover:bg-gray-400 text-black",
-    green: "bg-teal-700 hover:bg-teal-600 text-teal-100",
-  };
-
-  const handleSelectOwner = (owner) => {
-    setSelectedTaskOwner(owner);
-    setDropdownOpen(false);
-    setTimeout(() => {
-      if (criticalCheckboxRef.current) {
-        criticalCheckboxRef.current.focus();
-      }
-    }, 100);
-  };
-
   return (
     <div className={`w-full ${selectedFont}`}>
       <form
@@ -197,14 +219,15 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
           name="newtaskbody"
           placeholder="What's the next task? ✍️"
           maxLength={maxLength}
-          className={`p-2 mt-1 mb-1 ml-1 text-xl text-center flex-grow rounded-3xl ${inputClass} focus:outline-none focus:ring-2 ${inputFocusClasses[theme]} ${selectedFont}`}
+          className={`p-2 mt-1 mb-1 ml-1 text-xl text-center flex-grow rounded-3xl ${inputClass} focus:outline-none focus:ring-2`}
           tabIndex="0"
-          onKeyDown={(e) => {
-            if (e.key === "Tab") {
-              taskOwnerRef.current.focus();
-              e.preventDefault();
-            }
-          }}
+        />
+
+        {/* Calendar Icon for opening calendar modal */}
+        <FaCalendarAlt
+          onClick={openCalendar}
+          className="cursor-pointer text-xl mx-2"
+          title="Open Calendar"
         />
 
         <div
@@ -212,21 +235,6 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
           className="relative inline-block w-1/6"
           tabIndex="1"
           onClick={() => setDropdownOpen((prev) => !prev)}
-          onBlur={() => setDropdownOpen(false)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              if (!dropdownOpen) {
-                setDropdownOpen(true);
-              } else {
-                setSelectedTaskOwner(taskOwners[highlightedIndex]);
-                setDropdownOpen(false);
-                criticalCheckboxRef.current.focus();
-              }
-            } else {
-              handleDropdownNavigation(e);
-            }
-          }}
         >
           <div
             className={`p-2 mt-1 mb-1 ml-1 text-center flex-none w-full rounded-2xl cursor-pointer ${dropdownColors[theme].bg} ${dropdownColors[theme].text} ${selectedFont}`}
@@ -239,10 +247,8 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
               {taskOwners.map((owner, idx) => (
                 <li
                   key={idx}
-                  onClick={() => handleSelectOwner(owner)}
-                  className={`px-4 py-2 cursor-pointer ${dropdownColors[theme].text} ${dropdownColors[theme].hover} ${selectedFont} ${
-                    idx === highlightedIndex ? dropdownColors[theme].selected : ""
-                  }`}
+                  onClick={() => setSelectedTaskOwner(owner)}
+                  className={`px-4 py-2 cursor-pointer ${dropdownColors[theme].text} ${dropdownColors[theme].hover}`}
                 >
                   {owner}
                 </li>
@@ -260,24 +266,10 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
             id="critical"
             name="critical"
             checked={isCritical}
-            tabIndex="2"
-            ref={criticalCheckboxRef}
-            onChange={handleCheckboxClick}
-            onKeyDown={(e) => {
-              if (e.key === "Tab") {
-                addButtonRef.current.focus();
-                e.preventDefault();
-              }
-            }}
+            onChange={() => setIsCritical(!isCritical)}
             className="mr-1 text-red-500 h-3 w-6 appearance-none border-2 border-gray-300 rounded checked:bg-red-500 checked:border-red-500"
           />
-          <label
-            htmlFor="critical"
-            className="text-sm cursor-pointer"
-            onClick={(e) => e.stopPropagation()}
-          >
-            ⚠️
-          </label>
+          <label htmlFor="critical" className="text-sm cursor-pointer">⚠️</label>
         </div>
 
         <div
@@ -285,11 +277,6 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
           className={`rounded-xl border-2 text-center p-2 mt-1 mb-1 ml-1 mr-2 flex-none ${buttonBackgroundColor[theme]} ${selectedFont}`}
           tabIndex="3"
           title="Add Task"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleAdd(e);
-            }
-          }}
         >
           <button type="submit" className="text-sm cursor-pointer">
             Add Task ⬇
@@ -306,6 +293,54 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
       {success && (
         <div className="flex justify-center w-full mt-2">
           <p className="text-green-500 text-sm text-center">{success}</p>
+        </div>
+      )}
+
+      {/* Calendar Modal */}
+      {calendarOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className={`p-6 rounded-lg shadow-lg max-w-80 w-full ${calendarColors.bg} ${calendarColors.text}`}>
+            <h2 className={`text-xl font-bold mb-4 text-center ${calendarColors.text}`}>
+              Set the Due Date for this Task
+            </h2>
+
+            {/* Centered Calendar Widget */}
+            <div className={`p-2 border rounded-lg mb-4 flex justify-center ${calendarColors.border}`}>
+              <DatePicker
+                selected={selectedDate}
+                onChange={(date) => setSelectedDate(date)}
+                inline
+                className={`w-full ${selectedFont}`}
+                calendarClassName={`${calendarColors.bg} ${calendarColors.text}`}
+                dayClassName={(date) =>
+                  date.toDateString() === selectedDate?.toDateString()
+                    ? `${calendarColors.selectedDateBg} ${calendarColors.selectedDateText}`
+                    : calendarColors.text
+                }
+              />
+            </div>
+
+            {/* Selected Date Display */}
+            <div className="text-center mt-2">
+              {selectedDate ? (
+                <p className={`text-lg ${calendarColors.text}`}>
+                  Selected Due Date: {selectedDate.toLocaleDateString()}
+                </p>
+              ) : (
+                <p className={`text-lg ${calendarColors.text}`}>No date selected</p>
+              )}
+            </div>
+
+            {/* Centered Close Button */}
+            <div className="flex justify-center mt-4">
+              <button
+                onClick={closeCalendar}
+                className={`p-2 rounded-md ${calendarColors.buttonBg}`}
+              >
+                Close
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

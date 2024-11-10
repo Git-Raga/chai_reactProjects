@@ -26,6 +26,7 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
     taskowner: taskData.taskowner || "Unassigned",
     taskownerinitials: getInitials(taskData.taskowner || "Unassigned"),
     starred: taskData.Perfectstar || false,
+    duedate: taskData.duedate || "NA", // Set "NA" if duedate is null or not set
   });
   const [loading, setLoading] = useState(false);
   const [taskAge, setTaskAge] = useState(0);
@@ -58,7 +59,7 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
   const closeEditModal = () => setIsEditModalOpen(false);
 
   const handleEditSubmit = async (updatedTask) => {
-    const { taskname, criticaltask, taskowner } = updatedTask;
+    const { taskname, criticaltask, taskowner, duedate } = updatedTask;
     const taskownerinitials = getInitials(taskowner);
 
     setTask((prevTask) => ({
@@ -67,6 +68,7 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
       criticaltask,
       taskowner,
       taskownerinitials,
+      duedate: duedate || "NA", // Ensure "NA" is set if duedate is null
     }));
 
     try {
@@ -75,12 +77,13 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
         criticaltask,
         taskowner,
         taskownerinitials,
+        duedate: duedate || null, // Save null in database if no duedate is selected
       });
 
       setNotes((prevNotes) => {
         const updatedNotes = prevNotes.map((note) =>
           note.$id === task.$id
-            ? { ...note, taskname, criticaltask, taskowner, taskownerinitials }
+            ? { ...note, taskname, criticaltask, taskowner, taskownerinitials, duedate: duedate || "NA" }
             : note
         );
 
@@ -245,6 +248,16 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
           >
             {task.taskowner}
           </span>
+
+          {/* Due Date Field */}
+          <span
+            className={`flex items-center justify-center w-25 h-8 rounded-xl bg-gray-700 text-white 
+            text-sm font-semibold px-3 ${task.completed ? 'italic line-through' : ''}`}
+            title={`Due Date: ${task.duedate !== "NA" ? new Date(task.duedate).toLocaleDateString() : "NA"}`}
+          >
+            {task.duedate !== "NA" ? new Date(task.duedate).toLocaleDateString() : "NA"}
+          </span>
+
           <FaPencilAlt onClick={openEditModal} className={`cursor-pointer ${getEditIconColor()}`} />
           <FaCheckCircle
             onClick={handleUpdate}
