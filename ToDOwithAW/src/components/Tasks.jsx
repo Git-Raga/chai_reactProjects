@@ -1,16 +1,37 @@
 import React, { useState, useEffect } from "react";
 import db from "../appwrite/database";
-import { FaTrashAlt, FaCheckCircle, FaPencilAlt } from "react-icons/fa";
+import { FaTrashAlt, FaCheckCircle, FaPencilAlt, FaStar } from "react-icons/fa";
+import EditTask from "../components/EditTask";
 
 function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnimation }) {
+  // Function to map task owner to initials
+  const getInitials = (ownerName) => {
+    switch (ownerName) {
+      case "Abhishek": return "AM";
+      case "Neha": return "NA";
+      case "Mahima": return "MP";
+      case "Suresh": return "SK";
+      case "Muskan": return "MD";
+      case "Swetha": return "SB";
+      case "Raghav M": return "RM";
+      case "Dileep": return "DB";
+      case "Bhaskar": return "BM";
+      case "Architha": return "AS";
+      default: return "NA"; // Default if no match is found
+    }
+  };
+
   const [task, setTask] = useState({
     ...taskData,
     taskowner: taskData.taskowner || "Unassigned",
-    taskownerinitials: taskData.taskownerinitials || "NA",
+    taskownerinitials: getInitials(taskData.taskowner || "Unassigned"),
+    starred: taskData.Perfectstar || false,
   });
   const [loading, setLoading] = useState(false);
   const [taskAge, setTaskAge] = useState(0);
-  const [animateRow, setAnimateRow] = useState(false); // State for row animation
+  const [animateRow, setAnimateRow] = useState(false);
+  const [animateStar, setAnimateStar] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   useEffect(() => {
     const calculateTaskAge = (timestamp) => {
@@ -33,32 +54,106 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
     }
   }, [taskData.$createdAt]);
 
+  const openEditModal = () => setIsEditModalOpen(true);
+  const closeEditModal = () => setIsEditModalOpen(false);
+
+  const handleEditSubmit = async (updatedTask) => {
+    const { taskname, criticaltask, taskowner } = updatedTask;
+    const taskownerinitials = getInitials(taskowner);
+
+    setTask((prevTask) => ({
+      ...prevTask,
+      taskname,
+      criticaltask,
+      taskowner,
+      taskownerinitials,
+    }));
+
+    try {
+      await db.todocollection.update(task.$id, {
+        taskname,
+        criticaltask,
+        taskowner,
+        taskownerinitials,
+      });
+
+      setNotes((prevNotes) => {
+        const updatedNotes = prevNotes.map((note) =>
+          note.$id === task.$id
+            ? { ...note, taskname, criticaltask, taskowner, taskownerinitials }
+            : note
+        );
+
+        return updatedNotes.sort((a, b) => {
+          if (a.completed && !b.completed) return 1;
+          if (!a.completed && b.completed) return -1;
+          if (a.criticaltask && !b.criticaltask) return -1;
+          if (!a.criticaltask && b.criticaltask) return 1;
+          return b.taskAge - a.taskAge || new Date(a.$createdAt) - new Date(b.$createdAt);
+        });
+      });
+    } catch (error) {
+      console.error("Error updating task:", error);
+    }
+  };
+
   const handleUpdate = async () => {
     if (loading) return;
 
     const updatedCompletionStatus = !task.completed;
-
     setTask((prevTask) => ({ ...prevTask, completed: updatedCompletionStatus }));
     setLoading(true);
 
     try {
       await db.todocollection.update(task.$id, { completed: updatedCompletionStatus });
-      setNotes((prevNotes) =>
-        prevNotes.map((note) =>
-          note.$id === task.$id ? { ...note, completed: updatedCompletionStatus } : note
-        )
-      );
-
       if (updatedCompletionStatus) {
         triggerHeaderTickAnimation();
-        setAnimateRow(true); // Trigger the shrink-expand animation
-        setTimeout(() => setAnimateRow(false), 300); // Remove animation class after it completes
+        setAnimateRow(true);
+        setTimeout(() => setAnimateRow(false), 300);
       }
+
+      setNotes((prevNotes) => {
+        const updatedNotes = prevNotes.map((note) =>
+          note.$id === task.$id ? { ...note, completed: updatedCompletionStatus } : note
+        );
+
+        return updatedCompletionStatus
+          ? updatedNotes.sort((a, b) => {
+              if (a.completed && !b.completed) return 1;
+              if (!a.completed && b.completed) return -1;
+              if (a.criticaltask && !b.criticaltask) return -1;
+              if (!a.criticaltask && b.criticaltask) return 1;
+              return b.taskAge - a.taskAge || new Date(a.$createdAt) - new Date(b.$createdAt);
+            })
+          : updatedNotes;
+      });
     } catch (error) {
       console.error("Error updating task:", error);
       setTask((prevTask) => ({ ...prevTask, completed: !updatedCompletionStatus }));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleStarToggle = async () => {
+    if (!task.completed) return;
+
+    const updatedPerfectStarStatus = !task.starred;
+    setTask((prevTask) => ({ ...prevTask, starred: updatedPerfectStarStatus }));
+    setAnimateStar(true);
+    setTimeout(() => setAnimateStar(false), 600);
+
+    try {
+      await db.todocollection.update(task.$id, { Perfectstar: updatedPerfectStarStatus });
+
+      setNotes((prevNotes) =>
+        prevNotes.map((note) =>
+          note.$id === task.$id ? { ...note, starred: updatedPerfectStarStatus, Perfectstar: updatedPerfectStarStatus } : note
+        )
+      );
+    } catch (error) {
+      console.error("Error updating star status:", error);
+      setTask((prevTask) => ({ ...prevTask, starred: !updatedPerfectStarStatus }));
     }
   };
 
@@ -124,6 +219,19 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
           >
             {getTaskAgeLabel()}
           </span>
+
+          <FaStar
+            onClick={handleStarToggle}
+            className={`cursor-pointer ${
+              task.completed
+                ? task.starred
+                  ? 'text-yellow-500 border border-black'
+                  : 'text-gray-400'
+                : 'text-gray-400 cursor-not-allowed'
+            } text-2xl ${animateStar && task.starred ? 'animate-rotate-twice' : ''}`}
+            style={{ cursor: task.completed ? 'pointer' : 'not-allowed' }}
+          />
+
           <span
             className={`flex items-center justify-center w-8 h-8 rounded-full ${getBackgroundColor(task.taskownerinitials)} text-white text-sm 
             border border-gray-300 font-semibold`}
@@ -137,7 +245,7 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
           >
             {task.taskowner}
           </span>
-          <FaPencilAlt onClick={() => console.log('Edit task')} className={`cursor-pointer ${getEditIconColor()}`} />
+          <FaPencilAlt onClick={openEditModal} className={`cursor-pointer ${getEditIconColor()}`} />
           <FaCheckCircle
             onClick={handleUpdate}
             className={`cursor-pointer ${task.completed ? 'text-green-500' : 'text-gray-500'} text-3xl`}
@@ -145,6 +253,15 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
           <FaTrashAlt onClick={handleDelete} className="text-red-500 cursor-pointer ml-4" />
         </div>
       </div>
+
+      {isEditModalOpen && (
+        <EditTask
+          task={task}
+          onSubmit={handleEditSubmit}
+          onClose={closeEditModal}
+          theme={theme}  // Pass the theme prop
+        />
+      )}
     </div>
   );
 }

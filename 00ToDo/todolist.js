@@ -1,31 +1,35 @@
 
 
 
-// TODO: completed tasks should be moved down to the list- after clicking on task complete
 
-// TODO: Star task logic to add
 
+// TODO:Due date logic to add
+// TODO:After Due date - late task - icon to display
+ 
+
+
+//<--------------User UI User Story------------->
+
+// TODO:Create user tables
+// TODO:Create login page
+// TODO:Check if the Admin and non Admin pages are ok 
+// TODO:Password change option for Admin & NON Admin to test
+
+
+
+// TODO:  Hi- Initial  in the top 
+// TODO:  Task summary - Assigned/completed/Open/Star tasks/late tasks
+// TODO:  for Users Edit option & Delete option not visible
+// TODO:  Change PW Option in the user profile- click
+// TODO:   
 
 
 //<--------------Suggesions & Bug reporting User Story------------->
 // TODO:submit suggesstion/bug/fa request page to create
 
-
-
-//<--------------New user User Story------------->
-// TODO: login and new user autentication function to build
-// TODO: No edit option for the non admin user 
-
-
-//<--------------Dashboard User Story------------->
-// TODO: Assigned Active Tasks, completed 
-// TODO: For each user, assigned tasks, star tasks, Done tasks, completed tasks
-
+// TODO:  hosting it public server
  
-//<--------------View for others  User Story------------->
-// TODO: Remove Edit and Delete options 
-// TODO: Done tasks, - there should be a completed button - if completed only then it should disappear from user
-
+ 
 
 
 

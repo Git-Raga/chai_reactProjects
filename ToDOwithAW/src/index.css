@@ -50,3 +50,15 @@
 .animate-shrink-expand {
   animation: shrink-expand 0.2s ease-in-out;
 }
+@keyframes rotate-twice {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(420deg); /* Two full rotations */
+  }
+}
+
+.animate-rotate-twice {
+  animation: rotate-twice 0.5s ease-in-out;
+}
