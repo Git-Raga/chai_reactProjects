@@ -3,11 +3,13 @@
 
 
 
-// TODO:try changing the due date postion for better UI
-// TODO:Due date should have red thick border once selected
-// TODO:Due date should have flip animation
 
-// TODO:Format of Due date should be DD/MMM/YY 
+ 
+
+// TODO:Format of Due date should be DD MMM
+// TODO:Add a Title bar explainin g each field
+// TODO:Error when selecting PAST dates
+
 // TODO:Due date should have like Due: & Date 
 
 

@@ -215,48 +215,59 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
         </div>
 
         <div className="flex items-center space-x-5">
-          <span
-            className={`flex items-center justify-center w-25 h-8 rounded-xl bg-gray-700 text-white 
-            text-sm font-semibold px-3 ${task.completed ? 'italic line-through' : ''}`}
-            title={`Task age: ${taskAge} days`}
-          >
-            {getTaskAgeLabel()}
-          </span>
 
-          <FaStar
-            onClick={handleStarToggle}
-            className={`cursor-pointer ${
-              task.completed
-                ? task.starred
-                  ? 'text-yellow-500 border border-black'
-                  : 'text-gray-400'
-                : 'text-gray-400 cursor-not-allowed'
-            } text-2xl ${animateStar && task.starred ? 'animate-rotate-twice' : ''}`}
-            style={{ cursor: task.completed ? 'pointer' : 'not-allowed' }}
-          />
 
-          <span
-            className={`flex items-center justify-center w-8 h-8 rounded-full ${getBackgroundColor(task.taskownerinitials)} text-white text-sm 
-            border border-gray-300 font-semibold`}
-            title={task.taskowner}
-          >
-            {task.taskownerinitials}
-          </span>
-          <span
-            className="flex items-center justify-center w-28 h-8 rounded-full bg-gray-300 text-gray-800 text-sm"
-            title={task.taskowner}
-          >
-            {task.taskowner}
-          </span>
+           {/* Due Date Field */}
+{task.duedate !== "NA" && (
+  <span
+    className={`flex items-center justify-center w-24 h-8 rounded-xl bg-orange-600 text-white 
+    text-sm px-3 ${task.completed ? 'italic line-through' : ''}`}
+    title={`Due Date: ${new Date(task.duedate).toLocaleDateString()}`}
+  >
+    {new Date(task.duedate).toLocaleDateString()}
+  </span>
+)}
 
-          {/* Due Date Field */}
-          <span
-            className={`flex items-center justify-center w-25 h-8 rounded-xl bg-gray-700 text-white 
-            text-sm font-semibold px-3 ${task.completed ? 'italic line-through' : ''}`}
-            title={`Due Date: ${task.duedate !== "NA" ? new Date(task.duedate).toLocaleDateString() : "NA"}`}
-          >
-            {task.duedate !== "NA" ? new Date(task.duedate).toLocaleDateString() : "NA"}
-          </span>
+
+            <FaStar
+              onClick={handleStarToggle}
+              className={`cursor-pointer ${
+                task.completed
+                  ? task.starred
+                    ? 'text-yellow-500 border border-black'
+                    : 'text-gray-400'
+                  : 'text-gray-400 cursor-not-allowed'
+              } text-2xl ${animateStar && task.starred ? 'animate-rotate-twice' : ''}`}
+              style={{ cursor: task.completed ? 'pointer' : 'not-allowed' }}
+            />
+
+            
+
+            {/* Task Owner Initials */}
+            <span
+              className={`flex items-center justify-center w-9 h-8 rounded-full ${getBackgroundColor(task.taskownerinitials)} text-white text-sm 
+              border border-gray-300 font-semibold`}
+              title={task.taskowner}
+            >
+              {task.taskownerinitials}
+            </span>
+
+            {/* Task Owner Name */}
+            <span
+              className="flex items-center justify-center w-24 h-8 rounded-full bg-gray-300 text-gray-800 text-sm"
+              title={task.taskowner}
+            >
+              {task.taskowner}
+            </span>
+
+            {/* Task Age Field */}
+            <span
+              className={`flex items-center justify-center w-20 h-8 rounded-xl bg-gray-700 text-white 
+              text-sm font-semibold px-3 ${task.completed ? 'italic line-through' : ''}`}
+              title={`Task age: ${taskAge} days`}
+            >
+              {getTaskAgeLabel()}
+            </span>
 
           <FaPencilAlt onClick={openEditModal} className={`cursor-pointer ${getEditIconColor()}`} />
           <FaCheckCircle

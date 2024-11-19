@@ -60,6 +60,7 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
+  const [highlightCalendarIcon, setHighlightCalendarIcon] = useState(false); // State for red border
 
   // Get colors based on the current theme
   const calendarColors = getCalendarColors(theme);
@@ -91,7 +92,13 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
   };
 
   const openCalendar = () => setCalendarOpen(true);
-  const closeCalendar = () => setCalendarOpen(false);
+
+  const closeCalendar = () => {
+    setCalendarOpen(false);
+    if (selectedDate) {
+      setHighlightCalendarIcon(true); // Highlight the calendar icon if a date is selected
+    }
+  };
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -140,8 +147,6 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
         taskownerinitials: tskini,
         completed: false,
         duedate: selectedDate ? selectedDate.toISOString().split("T")[0] : null,
-
-        //if selected, else null
       };
 
       const response = await db.todocollection.create(payload);
@@ -159,7 +164,8 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
         setSuccess("Task added successfully!");
         setTimeout(() => setSuccess(null), 2000);
         setError(null);
-        setSelectedDate(null); // Reset the selected date after adding the task
+        setSelectedDate(null); // Reset the selected date
+        setHighlightCalendarIcon(false); // Remove the red border after task is added
       } else {
         throw new Error("Failed to add task");
       }
@@ -223,12 +229,15 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
           tabIndex="0"
         />
 
-        {/* Calendar Icon for opening calendar modal */}
+        {/* Calendar Icon with Conditional Border */}
         <FaCalendarAlt
-          onClick={openCalendar}
-          className="cursor-pointer text-xl mx-2"
-          title="Open Calendar"
-        />
+  onClick={openCalendar}
+  className={`cursor-pointer text-xl mx-2 ${
+    highlightCalendarIcon ? "text-orange-500" : ""
+  }`}
+  title="Open Calendar"
+/>
+
 
         <div
           ref={taskOwnerRef}
