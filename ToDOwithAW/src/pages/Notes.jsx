@@ -140,7 +140,7 @@ function Notes() {
           <div className="flex items-center space-x-6">
             <ThemeChanger currentTheme={theme} setTheme={setTheme} />
             <FontChanger theme={theme} selectedFont={selectedFont} setSelectedFont={setSelectedFont} /> 
-            <h1 className="text-2xl flex-1 text-center">
+            <h1 className="text-3xl flex-1 text-center">
               TaskForce{" "}
               <span className={`inline-block ${animateBolt ? 'animate-bolt-scale' : ''}`}>⚡</span>
             </h1>

@@ -206,27 +206,38 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
         <div className="flex items-center flex-1">
           {task.criticaltask && (
             <span className="text-white bg-red-800 px-2 py-1 rounded mr-2 text-xs font-semibold">
-              ⚠️ CRITICAL TASK
+              ⚠️ CRITICAL
             </span>
           )}
-          <span onClick={handleUpdate} className="cursor-pointer">
-            {task.completed ? <s>{task.taskname}</s> : <>{task.taskname}</>}
+          <span  
+           className="">
+         
+            <>{task.taskname}</>
           </span>
         </div>
 
         <div className="flex items-center space-x-5">
 
 
-           {/* Due Date Field */}
+{/* Due Date Field */}
 {task.duedate !== "NA" && (
   <span
-    className={`flex items-center justify-center w-24 h-8 rounded-xl bg-orange-600 text-white 
-    text-sm px-3 ${task.completed ? 'italic line-through' : ''}`}
-    title={`Due Date: ${new Date(task.duedate).toLocaleDateString()}`}
+    className={`flex items-center justify-center w-20 h-8 rounded-md bg-orange-600 text-white 
+    text-sm flex-shrink-0 text-center ${task.completed ? 'italic line-through' : ''}`}
+    title={`Due Date: ${new Date(task.duedate).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+    })}`}
   >
-    {new Date(task.duedate).toLocaleDateString()}
+    {new Date(task.duedate).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+    })}
   </span>
 )}
+
+
+
 
 
             <FaStar
