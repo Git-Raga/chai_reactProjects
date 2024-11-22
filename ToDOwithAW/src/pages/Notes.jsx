@@ -166,7 +166,7 @@ function Notes() {
         </div>
       </div>
 
-      <div className="flex-grow container mx-auto pt-44 pb-8 overflow-y-auto">
+      <div className="flex-grow container mx-auto pt-46 pb-8 overflow-y-auto">
         {notes.length === 0 ? (
           <div className="text-center text-gray-500">No tasks found</div>
         ) : (

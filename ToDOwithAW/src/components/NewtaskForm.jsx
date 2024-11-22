@@ -305,30 +305,32 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
         </div>
       )}
        {/* Insert the header here */}
-  <div className="sticky top-0 z-10
-   text-white border-b 
-   border-gray-300
-   
-   ">
-  <div className="flex  justify-between items-center p-1">
-    <div className="w-1/6 text-left ml-2  ">Urgency</div>
-    <div className="flex-1 
-    text-left   
-    w-80
-     
-      ">Task Name</div>
-    <div className="w-80 
-    text-left
-    -mr-5
+       <div className="sticky top-0 z-10 text-white  border-gray-700">
+        
+  <div className="flex items-center">
+    {/* Urgency */}
+    <div className="flex-none w-28 text-left ml-4">Urgency</div>
     
-       
-     
-    ">Due Date</div>
-    <div className="w-30 text-center    ">Perfect *</div>
-    <div className="w-30 text-center   ">Task Owner</div>
-    <div className="w-20 text-center   ">Task Age</div>
-  </div>
+    {/* Task Details */}
+    <div className="flex flex-1 w-48 mr-80 text-left">Task Details</div>
+    
+    {/* Due Date */}
+    <div className="flex-1 ml-10 text-center">Due Date</div>
+    
+    {/* Perfect */}
+    <div className="flex-1 w-16 mr-20 text-center">Perfect *</div>
+    
+    {/* Task Owner */}
+    <div className="flex-1 w-40 text-center">Task Owner</div>
+    
+    {/* Task Age */}
+    <div className="flex-none w-20 text-center">Task Age</div>
+  
 </div>
+
+</div>
+
+
 
 
       {/* Calendar Modal */}

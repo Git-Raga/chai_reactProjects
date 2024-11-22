@@ -37,18 +37,18 @@
 }
 @keyframes shrink-expand {
   0% {
-    transform: scaleY(1);
+    transform: scaleY(.05);
   }
   50% {
-    transform: scaleY(.3);
+    transform: scaleY(.02);
   }
   100% {
-    transform: scaleY(1);
+    transform: scaleY(.5);
   }
 }
 
 .animate-shrink-expand {
-  animation: shrink-expand 0.2s ease-in-out;
+  animation: shrink-expand 1s ease-in-out;
 }
 @keyframes rotate-twice {
   0% {

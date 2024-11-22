@@ -102,42 +102,49 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
 
   const handleUpdate = async () => {
     if (loading) return;
-
+  
     const updatedCompletionStatus = !task.completed;
-    setTask((prevTask) => ({ ...prevTask, completed: updatedCompletionStatus }));
     setLoading(true);
-
+  
     try {
+      // Set animation for consistent behavior
+      setAnimateRow(false); // Reset animation state
+      setTimeout(() => setAnimateRow(true), 50); // Trigger the animation again after resetting
+  
+      // Update task state
+      setTask((prevTask) => ({ ...prevTask, completed: updatedCompletionStatus }));
+  
+      // Update database
       await db.todocollection.update(task.$id, { completed: updatedCompletionStatus });
+  
       if (updatedCompletionStatus) {
         triggerHeaderTickAnimation();
-        setAnimateRow(true);
-        setTimeout(() => setAnimateRow(false), 300);
       }
-
+  
       setNotes((prevNotes) => {
         const updatedNotes = prevNotes.map((note) =>
           note.$id === task.$id ? { ...note, completed: updatedCompletionStatus } : note
         );
-
-        return updatedCompletionStatus
-          ? updatedNotes.sort((a, b) => {
-              if (a.completed && !b.completed) return 1;
-              if (!a.completed && b.completed) return -1;
-              if (a.criticaltask && !b.criticaltask) return -1;
-              if (!a.criticaltask && b.criticaltask) return 1;
-              return b.taskAge - a.taskAge || new Date(a.$createdAt) - new Date(b.$createdAt);
-            })
-          : updatedNotes;
+  
+        // Ensure tasks are sorted correctly after status change
+        return updatedNotes.sort((a, b) => {
+          if (a.completed && !b.completed) return 1;
+          if (!a.completed && b.completed) return -1;
+          if (a.criticaltask && !b.criticaltask) return -1;
+          if (!a.criticaltask && b.criticaltask) return 1;
+          return b.taskAge - a.taskAge || new Date(a.$createdAt) - new Date(b.$createdAt);
+        });
       });
     } catch (error) {
       console.error("Error updating task:", error);
+  
+      // Revert state on error
       setTask((prevTask) => ({ ...prevTask, completed: !updatedCompletionStatus }));
     } finally {
       setLoading(false);
     }
   };
-
+  
   const handleStarToggle = async () => {
     if (!task.completed) return;
 
@@ -202,39 +209,42 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
 
   return (
     <div className={`w-full mr-2 ${selectedFont} ${animateRow ? 'animate-shrink-expand' : ''}`}>
+
       <div className={`flex justify-between items-center ${task.completed ? 'text-green-700 italic' : 'not-italic'}`}>
-        <div className="flex items-center flex-1">
-          {task.criticaltask && (
-            <span className="text-white bg-red-800 px-2 py-1 rounded mr-2 text-xs font-semibold">
-              ⚠️ CRITICAL
-            </span>
-          )}
-          <span  
-           className="">
-         
-            <>{task.taskname}</>
-          </span>
-        </div>
 
-        <div className="flex items-center space-x-5">
+     <div className="flex items-center flex-1">
+  {task.criticaltask ? (
+    <span className="text-white bg-red-800 px-2 py-1 rounded mr-2 text-xs font-semibold">
+      ⚠️ CRITICAL
+    </span>
+  ) : (
+    <span className="text-white bg-green-700 px-2 py-1 rounded mr-2 text-xs font-semibold">
+      ⬜ NORMAL
+    </span>
+  )}
+  <span>{task.taskname}</span>
+</div>
 
 
+    
+    
+    <div className="flex items-center space-x-5">
 {/* Due Date Field */}
-{task.duedate !== "NA" && (
-  <span
-    className={`flex items-center justify-center w-20 h-8 rounded-md bg-orange-600 text-white 
-    text-sm flex-shrink-0 text-center ${task.completed ? 'italic line-through' : ''}`}
-    title={`Due Date: ${new Date(task.duedate).toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-    })}`}
-  >
-    {new Date(task.duedate).toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-    })}
-  </span>
-)}
+        {task.duedate !== "NA" && (
+          <span
+            className={`flex items-center justify-center w-20 h-8 rounded-md bg-orange-600 text-white 
+            text-sm flex-shrink-0 text-center ${task.completed ? 'italic line-through' : ''}`}
+            title={`Due Date: ${new Date(task.duedate).toLocaleDateString('en-GB', {
+              day: '2-digit',
+              month: 'short',
+            })}`}
+          >
+            {new Date(task.duedate).toLocaleDateString('en-GB', {
+              day: '2-digit',
+              month: 'short',
+            })}
+          </span>
+        )}
 
 
 

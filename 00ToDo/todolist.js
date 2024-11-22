@@ -3,14 +3,13 @@
 // TODO:Add a Title bar explainin g each field
 // TODO:Title as per theme
 
-// TODO:Urgency - green for normal
-// TODO:Move the taskName to left
-
+// TODO:Edit icon should come after tick - next to delete 
+ 
 
 // TODO:Error when selecting PAST dates
 
 // TODO:Due date should have like Due: & Date 
-// TODO:completion uncheck should reload and rearrange the tasks
+ 
 
 
 
