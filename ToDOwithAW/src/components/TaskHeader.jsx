@@ -24,18 +24,18 @@ function TaskHeader({ theme }) {
     >
       <div className={`flex items-center text-sm font-semibold ${themeTextColor}`}>
         {/* Urgency */}
-        <span className="flex-none w-[100px] text-left ml-3 flex items-center">
-          URGENCY
+        <span className="flex-none w-[100px] text-left ml-1 flex items-center">
+        URGENCY ❗
         </span>
 
         {/* Task Details */}
-        <span className="flex-grow text-left ml-1 flex items-center w-[150px]">
-          TASK DETAILS
+        <span className="flex-grow text-left ml-5 flex items-center w-[150px]">
+          TASK DETAILS 📝
         </span>
 
         {/* Due Date */}
         <span className={`flex-none w-[70px] text-center flex items-center justify-center h-6 rounded-md mr-[15px] ${dueDateBackground}`}>
-          Due
+          DUE ⏱️
         </span>
 
         {/* Perfect */}
@@ -45,12 +45,12 @@ function TaskHeader({ theme }) {
 
         {/* Task Owner */}
         <span className="flex-none w-[200px] text-center flex items-center justify-center mr-[-45px]">
-          TASK OWNER
+          TASK OWNER 🙋🏻‍♂️
         </span>
 
         {/* Task Age */}
         <span className="flex-none w-[100px] text-right flex items-center justify-end mr-[142px]">
-          TASK AGE
+          TASK AGE🗓️
         </span>
       </div>
     </div>

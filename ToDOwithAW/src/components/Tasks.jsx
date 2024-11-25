@@ -208,7 +208,7 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
   const getTaskAgeLabel = () => (taskAge === 1 ? `${taskAge} Day` : `${taskAge} Days`);
 
   return (
-    <div className={`w-full mr-2 ${selectedFont} ${animateRow ? 'animate-shrink-expand' : ''}`}>
+    <div className={`w-full mr- ${selectedFont} ${animateRow ? 'animate-shrink-expand' : ''}`}>
 
       <div className={`flex justify-between items-center ${task.completed ? 'text-green-700 italic' : 'not-italic'}`}>
 
@@ -222,7 +222,8 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
       ⬜ NORMAL
     </span>
   )}
-   <span className={`${task.completed ? 'line-through' : ''}`}>{task.taskname}</span>
+<span className={`${task.completed ? 'line-through' : ''} ml-4`}>{task.taskname}</span>
+
 </div>
 
 
@@ -232,7 +233,7 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
   {task.duedate !== "NA" && (
     <span
       className={`flex items-center justify-center w-20 h-8 rounded-md bg-orange-600 text-white 
-      mr-5  
+      mr-7  
       text-sm flex-shrink-0 text-center ${task.completed ? 'italic line-through' : ''}`}
       title={`Due Date: ${new Date(task.duedate).toLocaleDateString('en-GB', {
         day: '2-digit',
