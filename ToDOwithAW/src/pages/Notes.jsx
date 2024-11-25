@@ -10,6 +10,8 @@ import Tasks from "../components/Tasks";
 import ThemeChanger from '../components/ThemeChanger';
 import Footer from "../components/Footer";
 import FontChanger from "../components/FontChanger";
+ import TaskHeader from '../components/TaskHeader'
+ 
 
 function Notes() {
   const [notes, setNotes] = useState([]);
@@ -163,9 +165,12 @@ function Notes() {
             theme={theme}
             selectedFont={selectedFont}
           />
+          { <TaskHeader
+                 theme={theme}
+                 /> }
         </div>
       </div>
-
+      
       <div className="flex-grow container mx-auto pt-46 pb-8 overflow-y-auto">
         {notes.length === 0 ? (
           <div className="text-center text-gray-500">No tasks found</div>
@@ -176,6 +181,7 @@ function Notes() {
                 key={note.$id}
                 className={`p-1 mb-2 rounded-xl shadow flex justify-between items-center text-xm pl-3 ${getTaskClass()}`}
               >
+               
                 <Tasks 
                   taskData={note}  
                   setNotes={setNotes} 

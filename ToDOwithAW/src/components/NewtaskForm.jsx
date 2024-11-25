@@ -216,7 +216,8 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
     <div className={`w-full ${selectedFont}`}>
       <form
         ref={formRef}
-        className={`font-bold rounded-2xl border-gray-400 border-2 mt-1 mb-3 flex items-center gap-2 ${selectedFont}`}
+        className={`font-bold rounded-2xl border-gray-400 border-2 mt-1 
+        mb-3 flex items-center gap-2 ${selectedFont}`}
         onSubmit={handleAdd}
         id="todo-form"
       >
@@ -304,31 +305,8 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
           <p className="text-green-500 text-sm text-center">{success}</p>
         </div>
       )}
-       {/* Insert the header here */}
-       <div className="sticky top-0 z-10 text-white  border-gray-700">
-        
-  <div className="flex items-center">
-    {/* Urgency */}
-    <div className="flex-none w-28 text-left ml-4">Urgency</div>
-    
-    {/* Task Details */}
-    <div className="flex flex-1 w-48 mr-80 text-left">Task Details</div>
-    
-    {/* Due Date */}
-    <div className="flex-1 ml-10 text-center">Due Date</div>
-    
-    {/* Perfect */}
-    <div className="flex-1 w-16 mr-20 text-center">Perfect *</div>
-    
-    {/* Task Owner */}
-    <div className="flex-1 w-40 text-center">Task Owner</div>
-    
-    {/* Task Age */}
-    <div className="flex-none w-20 text-center">Task Age</div>
-  
-</div>
-
-</div>
+   
+ 
 
 
 

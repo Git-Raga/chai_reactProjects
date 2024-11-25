@@ -222,81 +222,80 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
       ⬜ NORMAL
     </span>
   )}
-  <span>{task.taskname}</span>
+   <span className={`${task.completed ? 'line-through' : ''}`}>{task.taskname}</span>
 </div>
 
 
     
-    
-    <div className="flex items-center space-x-5">
-{/* Due Date Field */}
-        {task.duedate !== "NA" && (
-          <span
-            className={`flex items-center justify-center w-20 h-8 rounded-md bg-orange-600 text-white 
-            text-sm flex-shrink-0 text-center ${task.completed ? 'italic line-through' : ''}`}
-            title={`Due Date: ${new Date(task.duedate).toLocaleDateString('en-GB', {
-              day: '2-digit',
-              month: 'short',
-            })}`}
-          >
-            {new Date(task.duedate).toLocaleDateString('en-GB', {
-              day: '2-digit',
-              month: 'short',
-            })}
-          </span>
-        )}
+<div className="flex items-center space-x-5">
+  {/* Due Date Field */}
+  {task.duedate !== "NA" && (
+    <span
+      className={`flex items-center justify-center w-20 h-8 rounded-md bg-orange-600 text-white 
+      mr-5  
+      text-sm flex-shrink-0 text-center ${task.completed ? 'italic line-through' : ''}`}
+      title={`Due Date: ${new Date(task.duedate).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+      })}`}
+    >
+      {new Date(task.duedate).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+      })}
+    </span>
+  )}
 
+  {/* Star Icon */}
+  <FaStar
+    onClick={handleStarToggle}
+    className={`cursor-pointer ${
+      task.completed
+        ? task.starred
+          ? 'text-yellow-500 border border-black'
+          : 'text-gray-400'
+        : 'text-gray-400 cursor-not-allowed'
+    } text-2xl ${animateStar && task.starred ? 'animate-rotate-twice' : ''}`}
+    style={{ cursor: task.completed ? 'pointer' : 'not-allowed' }}
+  />
 
+  {/* Task Owner Initials */}
+  <span
+    className={`flex items-center justify-center w-9 h-8 rounded-xl ${getBackgroundColor(
+      task.taskownerinitials
+    )} text-white text-sm border border-gray-300 font-semibold`}
+    title={task.taskowner}
+    style={{ transform: 'translateX(24px)' }} // Move Task Owner Initials to the right by 5 pixels
+  >
+    {task.taskownerinitials}
+  </span>
 
+  {/* Task Owner Name */}
+  <span
+    className="flex items-center justify-center w-24 h-8 rounded-full bg-gray-300 text-gray-800 text-sm"
+    title={task.taskowner}
+  >
+    {task.taskowner}
+  </span>
 
+  {/* Task Age Field */}
+  <span
+    className={`flex items-center justify-center w-20 h-8 rounded-xl bg-gray-700 text-white 
+    text-sm font-semibold px-3 ${task.completed ? 'italic line-through' : ''}`}
+    title={`Task age: ${taskAge} days`}
+  >
+    {getTaskAgeLabel()}
+  </span>
 
-            <FaStar
-              onClick={handleStarToggle}
-              className={`cursor-pointer ${
-                task.completed
-                  ? task.starred
-                    ? 'text-yellow-500 border border-black'
-                    : 'text-gray-400'
-                  : 'text-gray-400 cursor-not-allowed'
-              } text-2xl ${animateStar && task.starred ? 'animate-rotate-twice' : ''}`}
-              style={{ cursor: task.completed ? 'pointer' : 'not-allowed' }}
-            />
+  
+  <FaCheckCircle
+    onClick={handleUpdate}
+    className={`cursor-pointer ${task.completed ? 'text-green-500' : 'text-gray-500'} text-3xl`}
+  />
+  <FaPencilAlt onClick={openEditModal} className={`cursor-pointer ${getEditIconColor()}`} />
+  <FaTrashAlt onClick={handleDelete} className="text-red-500 cursor-pointer ml-4" />
+</div>
 
-            
-
-            {/* Task Owner Initials */}
-            <span
-              className={`flex items-center justify-center w-9 h-8 rounded-full ${getBackgroundColor(task.taskownerinitials)} text-white text-sm 
-              border border-gray-300 font-semibold`}
-              title={task.taskowner}
-            >
-              {task.taskownerinitials}
-            </span>
-
-            {/* Task Owner Name */}
-            <span
-              className="flex items-center justify-center w-24 h-8 rounded-full bg-gray-300 text-gray-800 text-sm"
-              title={task.taskowner}
-            >
-              {task.taskowner}
-            </span>
-
-            {/* Task Age Field */}
-            <span
-              className={`flex items-center justify-center w-20 h-8 rounded-xl bg-gray-700 text-white 
-              text-sm font-semibold px-3 ${task.completed ? 'italic line-through' : ''}`}
-              title={`Task age: ${taskAge} days`}
-            >
-              {getTaskAgeLabel()}
-            </span>
-
-          <FaPencilAlt onClick={openEditModal} className={`cursor-pointer ${getEditIconColor()}`} />
-          <FaCheckCircle
-            onClick={handleUpdate}
-            className={`cursor-pointer ${task.completed ? 'text-green-500' : 'text-gray-500'} text-3xl`}
-          />
-          <FaTrashAlt onClick={handleDelete} className="text-red-500 cursor-pointer ml-4" />
-        </div>
       </div>
 
       {isEditModalOpen && (

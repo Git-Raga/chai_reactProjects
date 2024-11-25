@@ -1,9 +1,7 @@
 
+ 
+ 
 
-// TODO:Add a Title bar explainin g each field
-// TODO:Title as per theme
-
-// TODO:Edit icon should come after tick - next to delete 
  
 
 // TODO:Error when selecting PAST dates
