@@ -25,32 +25,32 @@ function TaskHeader({ theme }) {
       <div className={`flex items-center text-sm font-semibold ${themeTextColor}`}>
         {/* Urgency */}
         <span className="flex-none w-[100px] text-left ml-1 flex items-center">
-        URGENCY ❗
+        Urgency ❗
         </span>
 
         {/* Task Details */}
         <span className="flex-grow text-left ml-5 flex items-center w-[150px]">
-          TASK DETAILS 📝
+          Task Details 📝
         </span>
 
         {/* Due Date */}
-        <span className={`flex-none w-[70px] text-center flex items-center justify-center h-6 rounded-md mr-[15px] ${dueDateBackground}`}>
-          DUE ⏱️
+        <span className={`flex-none w-[70px] text-center flex items-center justify-center h-6 rounded-md mr-[22px] ${dueDateBackground}`}>
+          Due ⏱️
         </span>
 
         {/* Perfect */}
         <span className="flex-none w-[100px] text-center mr-[-35px] flex items-center justify-center ">
-          PERFECT ⭐
+          Perfect ⭐
         </span>
 
         {/* Task Owner */}
-        <span className="flex-none w-[200px] text-center flex items-center justify-center mr-[-45px]">
-          TASK OWNER 🙋🏻‍♂️
+        <span className="flex-none w-[200px] text-center flex items-center justify-center mr-[-46px]">
+          Assigned to 🙋🏻‍♂️
         </span>
 
         {/* Task Age */}
-        <span className="flex-none w-[100px] text-right flex items-center justify-end mr-[142px]">
-          TASK AGE🗓️
+        <span className="flex-none w-[100px] text-right flex items-center justify-end mr-[133px]">
+          Task Age🗓️
         </span>
       </div>
     </div>

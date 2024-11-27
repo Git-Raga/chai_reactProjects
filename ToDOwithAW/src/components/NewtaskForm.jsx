@@ -232,13 +232,12 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
 
         {/* Calendar Icon with Conditional Border */}
         <FaCalendarAlt
-  onClick={openCalendar}
-  className={`cursor-pointer text-xl mx-2 ${
-    highlightCalendarIcon ? "text-orange-500" : ""
-  }`}
-  title="Open Calendar"
-/>
-
+          onClick={openCalendar}
+          className={`cursor-pointer text-xl mx-2 ${
+            highlightCalendarIcon ? "text-orange-500" : ""
+          }`}
+          title="Open Calendar"
+        />
 
         <div
           ref={taskOwnerRef}
@@ -305,11 +304,6 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
           <p className="text-green-500 text-sm text-center">{success}</p>
         </div>
       )}
-   
- 
-
-
-
 
       {/* Calendar Modal */}
       {calendarOpen && (
@@ -332,6 +326,7 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
                     ? `${calendarColors.selectedDateBg} ${calendarColors.selectedDateText}`
                     : calendarColors.text
                 }
+                minDate={new Date()} // Disable all past dates
               />
             </div>
 
