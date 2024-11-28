@@ -1,3 +1,4 @@
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -9,7 +10,7 @@ export default {
       fontFamily: {
         titillium: ['"Titillium Web"', 'sans-serif'],
         bonaNovaSC: ['"Bona Nova SC"', 'serif'],
-        lobsterTwo: ['"Lobster Two"', 'cursive'], // Added Lobster Two
+        poppins: ['"Poppins"', 'sans-serif'], // Added Poppins
       },
     },
   },

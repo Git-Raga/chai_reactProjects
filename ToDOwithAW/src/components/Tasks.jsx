@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import db from "../appwrite/database";
 import { FaTrashAlt, FaCheckCircle, FaPencilAlt, FaStar } from "react-icons/fa";
 import EditTask from "../components/EditTask";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnimation }) {
-  // Function to map task owner to initials
   const getInitials = (ownerName) => {
     switch (ownerName) {
       case "Abhishek": return "AM";
@@ -26,13 +27,17 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
     taskowner: taskData.taskowner || "Unassigned",
     taskownerinitials: getInitials(taskData.taskowner || "Unassigned"),
     starred: taskData.Perfectstar || false,
-    duedate: taskData.duedate || "NA", // Set "NA" if duedate is null or not set
+    duedate: taskData.duedate || "NA",
   });
+
   const [loading, setLoading] = useState(false);
   const [taskAge, setTaskAge] = useState(0);
   const [animateRow, setAnimateRow] = useState(false);
   const [animateStar, setAnimateStar] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedDueDate, setSelectedDueDate] = useState(
+    task.duedate !== "NA" ? new Date(task.duedate) : null
+  );
 
   useEffect(() => {
     const calculateTaskAge = (timestamp) => {
@@ -59,8 +64,9 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
   const closeEditModal = () => setIsEditModalOpen(false);
 
   const handleEditSubmit = async (updatedTask) => {
-    const { taskname, criticaltask, taskowner, duedate } = updatedTask;
+    const { taskname, criticaltask, taskowner } = updatedTask;
     const taskownerinitials = getInitials(taskowner);
+    const duedate = selectedDueDate ? selectedDueDate.toISOString().split("T")[0] : null;
 
     setTask((prevTask) => ({
       ...prevTask,
@@ -68,7 +74,7 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
       criticaltask,
       taskowner,
       taskownerinitials,
-      duedate: duedate || "NA", // Ensure "NA" is set if duedate is null
+      duedate: duedate || "NA",
     }));
 
     try {
@@ -77,7 +83,7 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
         criticaltask,
         taskowner,
         taskownerinitials,
-        duedate: duedate || null, // Save null in database if no duedate is selected
+        duedate: duedate || null,
       });
 
       setNotes((prevNotes) => {
@@ -209,104 +215,122 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
 
   return (
     <div className={`w-full mr- ${selectedFont} ${animateRow ? 'animate-shrink-expand' : ''}`}>
-
       <div className={`flex justify-between items-center ${task.completed ? 'text-green-700 italic' : 'not-italic'}`}>
+        <div className="flex items-center flex-1">
+          {task.criticaltask ? (
+            <span className="text-white bg-red-800 px-2 py-1 rounded mr-2 text-xs font-semibold">
+              ⚠️ CRITICAL
+            </span>
+          ) : (
+            <span className="text-white bg-green-700 px-2 py-1 rounded mr-2 text-xs font-semibold">
+              ⬜ NORMAL
+            </span>
+          )}
+          <span className={`${task.completed ? 'line-through' : ''} ml-4`}>{task.taskname}</span>
+        </div>
 
-     <div className="flex items-center flex-1">
-  {task.criticaltask ? (
-    <span className="text-white bg-red-800 px-2 py-1 rounded mr-2 text-xs font-semibold">
-      ⚠️ CRITICAL
-    </span>
-  ) : (
-    <span className="text-white bg-green-700 px-2 py-1 rounded mr-2 text-xs font-semibold">
-      ⬜ NORMAL
-    </span>
-  )}
-<span className={`${task.completed ? 'line-through' : ''} ml-4`}>{task.taskname}</span>
+        <div className="flex items-center space-x-5">
+          {/* Due Date Field */}
+          {task.duedate !== "NA" && (
+            <span
+              className={`flex items-center justify-center w-20 h-8 rounded-md bg-orange-600 text-white 
+              mr-7 text-sm flex-shrink-0 text-center ${task.completed ? 'italic line-through' : ''}`}
+              title={`Due Date: ${new Date(task.duedate).toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: 'short',
+              })}`}
+            >
+              {new Date(task.duedate).toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: 'short',
+              })}
+            </span>
+          )}
 
-</div>
+          {/* Star Icon */}
+          <FaStar
+            onClick={handleStarToggle}
+            className={`cursor-pointer ${
+              task.completed
+                ? task.starred
+                  ? 'text-yellow-500 border border-black'
+                  : 'text-gray-400'
+                : 'text-gray-400 cursor-not-allowed'
+            } text-2xl ${animateStar && task.starred ? 'animate-rotate-twice' : ''}`}
+            style={{ cursor: task.completed ? 'pointer' : 'not-allowed' }}
+          />
 
+          {/* Task Owner Initials */}
+          <span
+            className={`flex items-center justify-center w-9 h-8 rounded-xl ${getBackgroundColor(
+              task.taskownerinitials
+            )} text-white text-sm border border-gray-300 font-semibold`}
+            title={task.taskowner}
+            style={{ transform: 'translateX(24px)' }} // Move Task Owner Initials to the right by 5 pixels
+          >
+            {task.taskownerinitials}
+          </span>
 
-    
-<div className="flex items-center space-x-5">
-  {/* Due Date Field */}
-  {task.duedate !== "NA" && (
-    <span
-      className={`flex items-center justify-center w-20 h-8 rounded-md bg-orange-600 text-white 
-      mr-7  
-      text-sm flex-shrink-0 text-center ${task.completed ? 'italic line-through' : ''}`}
-      title={`Due Date: ${new Date(task.duedate).toLocaleDateString('en-GB', {
-        day: '2-digit',
-        month: 'short',
-      })}`}
-    >
-      {new Date(task.duedate).toLocaleDateString('en-GB', {
-        day: '2-digit',
-        month: 'short',
-      })}
-    </span>
-  )}
+          {/* Task Owner Name */}
+          <span
+            className="flex items-center justify-center w-24 h-8 rounded-full bg-gray-300 text-gray-800 text-sm"
+            title={task.taskowner}
+          >
+            {task.taskowner}
+          </span>
 
-  {/* Star Icon */}
-  <FaStar
-    onClick={handleStarToggle}
-    className={`cursor-pointer ${
-      task.completed
-        ? task.starred
-          ? 'text-yellow-500 border border-black'
-          : 'text-gray-400'
-        : 'text-gray-400 cursor-not-allowed'
-    } text-2xl ${animateStar && task.starred ? 'animate-rotate-twice' : ''}`}
-    style={{ cursor: task.completed ? 'pointer' : 'not-allowed' }}
-  />
+          {/* Task Age Field */}
+          <span
+            className={`flex items-center justify-center w-20 h-8 rounded-xl bg-gray-700 text-white 
+            text-sm font-semibold px-3 ${task.completed ? 'italic line-through' : ''}`}
+            title={`Task age: ${taskAge} days`}
+          >
+            {getTaskAgeLabel()}
+          </span>
 
-  {/* Task Owner Initials */}
-  <span
-    className={`flex items-center justify-center w-9 h-8 rounded-xl ${getBackgroundColor(
-      task.taskownerinitials
-    )} text-white text-sm border border-gray-300 font-semibold`}
-    title={task.taskowner}
-    style={{ transform: 'translateX(24px)' }} // Move Task Owner Initials to the right by 5 pixels
-  >
-    {task.taskownerinitials}
-  </span>
-
-  {/* Task Owner Name */}
-  <span
-    className="flex items-center justify-center w-24 h-8 rounded-full bg-gray-300 text-gray-800 text-sm"
-    title={task.taskowner}
-  >
-    {task.taskowner}
-  </span>
-
-  {/* Task Age Field */}
-  <span
-    className={`flex items-center justify-center w-20 h-8 rounded-xl bg-gray-700 text-white 
-    text-sm font-semibold px-3 ${task.completed ? 'italic line-through' : ''}`}
-    title={`Task age: ${taskAge} days`}
-  >
-    {getTaskAgeLabel()}
-  </span>
-
-  
-  <FaCheckCircle
-    onClick={handleUpdate}
-    className={`cursor-pointer ${task.completed ? 'text-green-500' : 'text-gray-500'} text-3xl`}
-  />
-  <FaPencilAlt onClick={openEditModal} className={`cursor-pointer ${getEditIconColor()}`} />
-  <FaTrashAlt onClick={handleDelete} className="text-red-500 cursor-pointer ml-4" />
-</div>
-
+          <FaCheckCircle
+            onClick={handleUpdate}
+            className={`cursor-pointer ${task.completed ? 'text-green-500' : 'text-gray-500'} text-3xl`}
+          />
+          <FaPencilAlt onClick={openEditModal} className={`cursor-pointer ${getEditIconColor()}`} />
+          <FaTrashAlt onClick={handleDelete} className="text-red-500 cursor-pointer ml-4" />
+        </div>
       </div>
 
       {isEditModalOpen && (
-        <EditTask
-          task={task}
-          onSubmit={handleEditSubmit}
-          onClose={closeEditModal}
-          theme={theme}  // Pass the theme prop
-        />
-      )}
+  <EditTask
+    task={task}
+    onSubmit={handleEditSubmit}
+    onClose={closeEditModal}
+    theme={theme}  // Pass the theme prop
+  >
+    {/* Added date picker for editing due date */}
+    <div className="mt-4">
+      <label className="block text-sm font-medium mb-1">Due Date:</label>
+      <DatePicker
+        selected={selectedDueDate}
+        onChange={(date) => setSelectedDueDate(date)}
+        minDate={new Date()} // Disable past dates
+        className="w-full p-2 border border-gray-300 rounded"
+      />
+    </div>
+
+    {/* Added toggle for Perfect Star */}
+    <div className="mt-4">
+      <label className="block text-sm font-medium mb-1">Perfect Star:</label>
+      <button
+        onClick={() => setStarred((prev) => !prev)}
+        className={`px-4 py-2 rounded-md ${
+          task.starred ? "bg-yellow-400 text-white" : "bg-gray-300 text-gray-800"
+        }`}
+      >
+        {task.starred ? "Yes" : "No"}
+      </button>
+    </div>
+  </EditTask>
+)}
+
+      
     </div>
   );
 }

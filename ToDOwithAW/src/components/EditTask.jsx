@@ -1,17 +1,24 @@
 import React, { useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 function EditTask({ task, onSubmit, onClose, theme }) {
   const [taskName, setTaskName] = useState(task.taskname || "");
   const [isCritical, setIsCritical] = useState(task.criticaltask || false);
   const [taskOwner, setTaskOwner] = useState(task.taskowner || "Unassigned");
+  const [dueDate, setDueDate] = useState(task.duedate !== "NA" ? new Date(task.duedate) : null);
+  const [isStarred, setIsStarred] = useState(task.starred || false);
 
   const handleToggleCritical = () => setIsCritical((prev) => !prev);
-  
+  const handleToggleStarred = () => setIsStarred((prev) => !prev);
+
   const handleSave = () => {
     onSubmit({
       taskname: taskName,
       criticaltask: isCritical,
       taskowner: taskOwner,
+      duedate: dueDate ? dueDate.toISOString().split("T")[0] : null,
+      starred: isStarred,
     });
     onClose();
   };
@@ -25,6 +32,10 @@ function EditTask({ task, onSubmit, onClose, theme }) {
       toggleYes: "bg-red-500 text-white",
       toggleNo: "bg-gray-300 text-gray-800",
       dropdownBg: "bg-gray-200 text-gray-800",
+      taskNameBg: "bg-gray-100",
+      taskNameText: "text-gray-800",
+      dueDateBg: "bg-gray-200",
+      dueDateText: "text-gray-800",
     },
     dark: {
       text: "text-black",
@@ -34,6 +45,10 @@ function EditTask({ task, onSubmit, onClose, theme }) {
       toggleYes: "bg-red-600 text-white",
       toggleNo: "bg-gray-600 text-white",
       dropdownBg: "bg-gray-800 text-white",
+      taskNameBg: "bg-gray-700",
+      taskNameText: "text-white",
+      dueDateBg: "bg-gray-700",
+      dueDateText: "text-white",
     },
     green: {
       text: "text-teal-900",
@@ -43,6 +58,10 @@ function EditTask({ task, onSubmit, onClose, theme }) {
       toggleYes: "bg-teal-700 text-white",
       toggleNo: "bg-teal-600 text-teal-100",
       dropdownBg: "bg-cyan-800 text-teal-100",
+      taskNameBg: "bg-teal-100",
+      taskNameText: "text-teal-900",
+      dueDateBg: "bg-teal-200",
+      dueDateText: "text-teal-900",
     },
   };
 
@@ -53,14 +72,16 @@ function EditTask({ task, onSubmit, onClose, theme }) {
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
         <h2 className={`text-2xl font-bold mb-4 ${styles.text}`}>Edit Task</h2>
 
+        {/* Task Name */}
         <label className={`${styles.text} block mb-2`}>Task Name:</label>
         <input
           type="text"
           value={taskName}
           onChange={(e) => setTaskName(e.target.value)}
-          className={`w-full p-2 rounded-md mb-4 ${styles.inputBg} ${styles.text}`}
+          className={`w-full p-2 rounded-md mb-4 ${styles.taskNameBg} ${styles.taskNameText}`}
         />
 
+        {/* Critical Task */}
         <label className={`${styles.text} block mb-2`}>Critical Task:</label>
         <div className="flex space-x-2 mb-4">
           <button
@@ -73,6 +94,20 @@ function EditTask({ task, onSubmit, onClose, theme }) {
           </button>
         </div>
 
+        {/* Perfect Star */}
+        <label className={`${styles.text} block mb-2`}>Perfect Star:</label>
+        <div className="flex space-x-2 mb-4">
+          <button
+            onClick={handleToggleStarred}
+            className={`px-4 py-2 rounded-md ${
+              isStarred ? styles.toggleYes : styles.toggleNo
+            }`}
+          >
+            {isStarred ? "Yes" : "No"}
+          </button>
+        </div>
+
+        {/* Task Owner */}
         <label className={`${styles.text} block mb-2`}>Task Owner:</label>
         <select
           value={taskOwner}
@@ -89,9 +124,18 @@ function EditTask({ task, onSubmit, onClose, theme }) {
           <option>Dileep</option>
           <option>Bhaskar</option>
           <option>Architha</option>
-     
         </select>
 
+        {/* Due Date */}
+        <label className={`${styles.text} block mb-2`}>Due Date:</label>
+        <DatePicker
+          selected={dueDate}
+          onChange={(date) => setDueDate(date)}
+          minDate={new Date()} // Disable past dates
+          className={`w-full p-2 rounded-md mb-4 border border-gray-300 ${styles.dueDateBg} ${styles.dueDateText}`}
+        />
+
+        {/* Save and Cancel Buttons */}
         <div className="flex justify-end space-x-2">
           <button
             onClick={handleSave}

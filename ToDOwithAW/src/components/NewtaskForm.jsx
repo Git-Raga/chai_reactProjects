@@ -60,7 +60,7 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
-  const [highlightCalendarIcon, setHighlightCalendarIcon] = useState(false); // State for red border
+  const [highlightCalendarIcon, setHighlightCalendarIcon] = useState(false);
 
   // Get colors based on the current theme
   const calendarColors = getCalendarColors(theme);
@@ -96,7 +96,7 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
   const closeCalendar = () => {
     setCalendarOpen(false);
     if (selectedDate) {
-      setHighlightCalendarIcon(true); // Highlight the calendar icon if a date is selected
+      setHighlightCalendarIcon(true);
     }
   };
 
@@ -221,13 +221,14 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
         onSubmit={handleAdd}
         id="todo-form"
       >
+        {/* Task Name Input */}
         <input
           type="text"
           name="newtaskbody"
           placeholder="What's the next task? ✍️"
           maxLength={maxLength}
           className={`p-2 mt-1 mb-1 ml-1 text-xl text-center flex-grow rounded-3xl ${inputClass} focus:outline-none focus:ring-2`}
-          tabIndex="0"
+          tabIndex="1" // Set tabIndex to 1 for task name input
         />
 
         {/* Calendar Icon with Conditional Border */}
@@ -237,12 +238,14 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
             highlightCalendarIcon ? "text-orange-500" : ""
           }`}
           title="Open Calendar"
+          tabIndex="2" // Set tabIndex to 2 for calendar icon
         />
 
+        {/* Task Owner Dropdown */}
         <div
           ref={taskOwnerRef}
           className="relative inline-block w-1/6"
-          tabIndex="1"
+          tabIndex="3" // Set tabIndex to 3 for task owner dropdown
           onClick={() => setDropdownOpen((prev) => !prev)}
         >
           <div
@@ -266,9 +269,11 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
           )}
         </div>
 
+        {/* Critical Task Checkbox */}
         <div
           className={`rounded-3xl text-center p-2 mt-1 mb-1 ml-1 mr-2 flex-none ${inputClass} ${selectedFont}`}
           title="Set as CRITICAL Task"
+          tabIndex="4" // Set tabIndex to 4 for critical task checkbox
         >
           <input
             type="checkbox"
@@ -281,10 +286,11 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
           <label htmlFor="critical" className="text-sm cursor-pointer">⚠️</label>
         </div>
 
+        {/* Add Task Button */}
         <div
           ref={addButtonRef}
           className={`rounded-xl border-2 text-center p-2 mt-1 mb-1 ml-1 mr-2 flex-none ${buttonBackgroundColor[theme]} ${selectedFont}`}
-          tabIndex="3"
+          tabIndex="5" // Set tabIndex to 5 for add task button
           title="Add Task"
         >
           <button type="submit" className="text-sm cursor-pointer">

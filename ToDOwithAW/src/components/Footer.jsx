@@ -25,7 +25,7 @@ function Footer({ theme }) {
         <div className="text-sm mr-auto flex items-center">
           <span>&copy; {new Date().getFullYear()}</span>
           
-          <span>Freemindworks...</span>
+          <span>FreeMindWorks...</span>
           <span className="mx-1"><FaDove /></span> {/* Dove icon with a margin */}
         </div>
 

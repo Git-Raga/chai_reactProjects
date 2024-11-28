@@ -5,7 +5,7 @@ import { FaFont } from 'react-icons/fa';
 const fonts = {
   titillium: "font-titillium",
   bonaNovaSC: "font-bonaNovaSC uppercase", // Ensure uppercase is applied
-  lobsterTwo: "font-lobsterTwo", // Updated to Lobster Two
+  poppins: "font-poppins", // Updated to Poppins
 };
 
 // Define colors for the icons based on the theme
@@ -53,10 +53,10 @@ function FontChanger({ theme, selectedFont, setSelectedFont }) {
           {selectedFont === fonts.bonaNovaSC && <span className="w-full h-1 mt-1 bg-blue-200"></span>}
         </button>
 
-        {/* Icon for Lobster Two */}
-        <button onClick={() => handleFontChange(fonts.lobsterTwo)} className="focus:outline-none flex flex-col items-center">
-          <span className={`${iconColor} ${selectedFont === fonts.lobsterTwo ? '' : ''} text-sm`}>f</span> {/* Removed font-bold */}
-          {selectedFont === fonts.lobsterTwo && <span className="w-full h-1 mt-1 bg-blue-200"></span>}
+        {/* Icon for Poppins */}
+        <button onClick={() => handleFontChange(fonts.poppins)} className="focus:outline-none flex flex-col items-center">
+          <span className={`${iconColor} ${selectedFont === fonts.poppins ? '' : ''} text-sm`}>f</span> {/* Removed font-bold */}
+          {selectedFont === fonts.poppins && <span className="w-full h-1 mt-1 bg-blue-200"></span>}
         </button>
       </div>
     </div>

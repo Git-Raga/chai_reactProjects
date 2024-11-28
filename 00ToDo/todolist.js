@@ -3,17 +3,9 @@
  
 
  
-
-// TODO:3rd font to change
-
-
- 
-
-
-
-// TODO:Toggle sequence from task name to check 
-// TODO:In Edit Model changing Due date to add
-
+// TODO:In Edit Model - Due date to save in DB
+// TODO:In Edit Model - Perfect star edits  to save in DB
+// TODO:In Edit Model - Perfect star edits should work only on the closed tasks 
 
 
 // TODO:After Due date - late task - icon to display
