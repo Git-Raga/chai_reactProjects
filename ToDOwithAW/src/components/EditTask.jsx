@@ -2,25 +2,59 @@ import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-function EditTask({ task, onSubmit, onClose, theme }) {
+function EditTask({ task, onSubmit, onClose, theme, refreshTasks }) {
   const [taskName, setTaskName] = useState(task.taskname || "");
   const [isCritical, setIsCritical] = useState(task.criticaltask || false);
   const [taskOwner, setTaskOwner] = useState(task.taskowner || "Unassigned");
-  const [dueDate, setDueDate] = useState(task.duedate !== "NA" ? new Date(task.duedate) : null);
+
+  const taskOwners = [
+    "Abhishek",
+    "Neha",
+    "Mahima",
+    "Suresh",
+    "Muskan",
+    "Swetha",
+    "Raghav M",
+    "Dileep",
+    "Bhaskar",
+    "Architha",
+  ];
+
+  const isValidDate = (date) => !isNaN(new Date(date).getTime());
+  const [duedate, setDuedate] = useState(
+    task.duedate && isValidDate(task.duedate) ? new Date(task.duedate) : null
+  );
+
   const [isStarred, setIsStarred] = useState(task.starred || false);
 
   const handleToggleCritical = () => setIsCritical((prev) => !prev);
   const handleToggleStarred = () => setIsStarred((prev) => !prev);
 
-  const handleSave = () => {
-    onSubmit({
+  const handleSave = async () => {
+    const updatedTask = {
       taskname: taskName,
       criticaltask: isCritical,
       taskowner: taskOwner,
-      duedate: dueDate ? dueDate.toISOString().split("T")[0] : null,
+      duedate: duedate ? duedate.toISOString() : null,
       starred: isStarred,
-    });
-    onClose();
+    };
+
+    console.log("Saving task:", updatedTask);
+        // Close the modal immediately
+        onClose(); 
+
+
+    // Save the task using the onSubmit callback
+    await onSubmit(updatedTask); 
+
+    // Refresh tasks if refreshTasks function is passed
+    if (refreshTasks && typeof refreshTasks === "function") {
+      await refreshTasks();
+    } else {
+      console.error("refreshTasks is not defined or not a function");
+    }
+
+   
   };
 
   const themeStyles = {
@@ -36,32 +70,6 @@ function EditTask({ task, onSubmit, onClose, theme }) {
       taskNameText: "text-gray-800",
       dueDateBg: "bg-gray-200",
       dueDateText: "text-gray-800",
-    },
-    dark: {
-      text: "text-black",
-      inputBg: "bg-gray-800 text-white",
-      buttonBg: "bg-blue-600",
-      buttonText: "text-white",
-      toggleYes: "bg-red-600 text-white",
-      toggleNo: "bg-gray-600 text-white",
-      dropdownBg: "bg-gray-800 text-white",
-      taskNameBg: "bg-gray-700",
-      taskNameText: "text-white",
-      dueDateBg: "bg-gray-700",
-      dueDateText: "text-white",
-    },
-    green: {
-      text: "text-teal-900",
-      inputBg: "bg-cyan-800 text-teal-50",
-      buttonBg: "bg-teal-500",
-      buttonText: "text-white",
-      toggleYes: "bg-teal-700 text-white",
-      toggleNo: "bg-teal-600 text-teal-100",
-      dropdownBg: "bg-cyan-800 text-teal-100",
-      taskNameBg: "bg-teal-100",
-      taskNameText: "text-teal-900",
-      dueDateBg: "bg-teal-200",
-      dueDateText: "text-teal-900",
     },
   };
 
@@ -114,24 +122,24 @@ function EditTask({ task, onSubmit, onClose, theme }) {
           onChange={(e) => setTaskOwner(e.target.value)}
           className={`w-full p-2 rounded-md mb-4 ${styles.dropdownBg}`}
         >
-          <option>Abhishek</option>
-          <option>Neha</option>
-          <option>Mahima</option>
-          <option>Suresh</option>
-          <option>Muskan</option>
-          <option>Swetha</option>
-          <option>Raghav M</option>
-          <option>Dileep</option>
-          <option>Bhaskar</option>
-          <option>Architha</option>
+          {taskOwners.map((owner) => (
+            <option key={owner} value={owner}>
+              {owner}
+            </option>
+          ))}
         </select>
 
         {/* Due Date */}
         <label className={`${styles.text} block mb-2`}>Due Date:</label>
         <DatePicker
-          selected={dueDate}
-          onChange={(date) => setDueDate(date)}
-          minDate={new Date()} // Disable past dates
+          selected={duedate}
+          onChange={(date) => {
+            console.log("Selected date:", date);
+            setDuedate(date);
+          }}
+          minDate={new Date()}
+          isClearable
+          placeholderText="Select a date"
           className={`w-full p-2 rounded-md mb-4 border border-gray-300 ${styles.dueDateBg} ${styles.dueDateText}`}
         />
 

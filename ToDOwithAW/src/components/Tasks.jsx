@@ -35,9 +35,6 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
   const [animateRow, setAnimateRow] = useState(false);
   const [animateStar, setAnimateStar] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedDueDate, setSelectedDueDate] = useState(
-    task.duedate !== "NA" ? new Date(task.duedate) : null
-  );
 
   useEffect(() => {
     const calculateTaskAge = (timestamp) => {
@@ -64,20 +61,21 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
   const closeEditModal = () => setIsEditModalOpen(false);
 
   const handleEditSubmit = async (updatedTask) => {
-    const { taskname, criticaltask, taskowner } = updatedTask;
+    const { taskname, criticaltask, taskowner, duedate } = updatedTask;
     const taskownerinitials = getInitials(taskowner);
-    const duedate = selectedDueDate ? selectedDueDate.toISOString().split("T")[0] : null;
-
+  
+    // Update local state
     setTask((prevTask) => ({
       ...prevTask,
       taskname,
       criticaltask,
       taskowner,
       taskownerinitials,
-      duedate: duedate || "NA",
+      duedate: duedate || "NA", 
     }));
-
+  
     try {
+      // Update the database
       await db.todocollection.update(task.$id, {
         taskname,
         criticaltask,
@@ -85,14 +83,13 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
         taskownerinitials,
         duedate: duedate || null,
       });
-
+  
       setNotes((prevNotes) => {
         const updatedNotes = prevNotes.map((note) =>
-          note.$id === task.$id
-            ? { ...note, taskname, criticaltask, taskowner, taskownerinitials, duedate: duedate || "NA" }
+          note.$id === task.$id 
+            ? { ...note, taskname, criticaltask, taskowner, taskownerinitials, duedate: duedate || "NA" } 
             : note
         );
-
         return updatedNotes.sort((a, b) => {
           if (a.completed && !b.completed) return 1;
           if (!a.completed && b.completed) return -1;
@@ -104,35 +101,33 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
     } catch (error) {
       console.error("Error updating task:", error);
     }
+  
+    // Close the modal after saving the task
+    closeEditModal();
   };
-
+  
   const handleUpdate = async () => {
     if (loading) return;
-  
+
     const updatedCompletionStatus = !task.completed;
     setLoading(true);
-  
+
     try {
-      // Set animation for consistent behavior
-      setAnimateRow(false); // Reset animation state
-      setTimeout(() => setAnimateRow(true), 50); // Trigger the animation again after resetting
-  
-      // Update task state
+      setAnimateRow(false); 
+      setTimeout(() => setAnimateRow(true), 50); 
+
       setTask((prevTask) => ({ ...prevTask, completed: updatedCompletionStatus }));
-  
-      // Update database
+
       await db.todocollection.update(task.$id, { completed: updatedCompletionStatus });
-  
+
       if (updatedCompletionStatus) {
         triggerHeaderTickAnimation();
       }
-  
+
       setNotes((prevNotes) => {
         const updatedNotes = prevNotes.map((note) =>
           note.$id === task.$id ? { ...note, completed: updatedCompletionStatus } : note
         );
-  
-        // Ensure tasks are sorted correctly after status change
         return updatedNotes.sort((a, b) => {
           if (a.completed && !b.completed) return 1;
           if (!a.completed && b.completed) return -1;
@@ -143,14 +138,21 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
       });
     } catch (error) {
       console.error("Error updating task:", error);
-  
-      // Revert state on error
       setTask((prevTask) => ({ ...prevTask, completed: !updatedCompletionStatus }));
     } finally {
       setLoading(false);
     }
   };
-  
+
+  const refreshTasks = async () => {
+    try {
+      const tasks = await fetchUpdatedTasks(); // This is the function that fetches updated tasks
+      setNotes(tasks); // Set the updated tasks to state
+    } catch (error) {
+      console.error("Error fetching updated tasks:", error);
+    }
+  };
+
   const handleStarToggle = async () => {
     if (!task.completed) return;
 
@@ -184,38 +186,38 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
 
   const getEditIconColor = () => {
     switch (theme) {
-      case 'light':
-        return 'text-gray-800';
-      case 'dark':
-        return 'text-gray-100';
-      case 'green':
-        return 'text-gray-100';
+      case "light":
+        return "text-gray-800";
+      case "dark":
+        return "text-gray-100";
+      case "green":
+        return "text-gray-100";
       default:
-        return 'text-blue-500';
+        return "text-blue-500";
     }
   };
 
   const getBackgroundColor = (initials) => {
     const colorMap = {
-      AM: 'bg-red-500',
-      NA: 'bg-green-500',
-      MP: 'bg-blue-500',
-      SK: 'bg-yellow-700',
-      MD: 'bg-purple-500',
-      SB: 'bg-pink-500',
-      RM: 'bg-indigo-500',
-      DB: 'bg-teal-500',
-      BH: 'bg-orange-500',
-      AS: 'bg-cyan-500',
+      AM: "bg-red-500",
+      NA: "bg-green-500",
+      MP: "bg-blue-500",
+      SK: "bg-yellow-700",
+      MD: "bg-purple-500",
+      SB: "bg-pink-500",
+      RM: "bg-indigo-500",
+      DB: "bg-teal-500",
+      BH: "bg-orange-500",
+      AS: "bg-cyan-500",
     };
-    return colorMap[initials] || 'bg-gray-500';
+    return colorMap[initials] || "bg-gray-500";
   };
 
   const getTaskAgeLabel = () => (taskAge === 1 ? `${taskAge} Day` : `${taskAge} Days`);
 
   return (
-    <div className={`w-full mr- ${selectedFont} ${animateRow ? 'animate-shrink-expand' : ''}`}>
-      <div className={`flex justify-between items-center ${task.completed ? 'text-green-700 italic' : 'not-italic'}`}>
+    <div className={`w-full mr- ${selectedFont} ${animateRow ? "animate-shrink-expand" : ""}`}>
+      <div className={`flex justify-between items-center ${task.completed ? "text-green-700 italic" : "not-italic"}`}>
         <div className="flex items-center flex-1">
           {task.criticaltask ? (
             <span className="text-white bg-red-800 px-2 py-1 rounded mr-2 text-xs font-semibold">
@@ -226,7 +228,7 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
               ⬜ NORMAL
             </span>
           )}
-          <span className={`${task.completed ? 'line-through' : ''} ml-4`}>{task.taskname}</span>
+          <span className={`${task.completed ? "line-through" : ""} ml-4`}>{task.taskname}</span>
         </div>
 
         <div className="flex items-center space-x-5">
@@ -234,15 +236,15 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
           {task.duedate !== "NA" && (
             <span
               className={`flex items-center justify-center w-20 h-8 rounded-md bg-orange-600 text-white 
-              mr-7 text-sm flex-shrink-0 text-center ${task.completed ? 'italic line-through' : ''}`}
-              title={`Due Date: ${new Date(task.duedate).toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: 'short',
+              mr-7 text-sm flex-shrink-0 text-center ${task.completed ? "italic line-through" : ""}`}
+              title={`Due Date: ${new Date(task.duedate).toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
               })}`}
             >
-              {new Date(task.duedate).toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: 'short',
+              {new Date(task.duedate).toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
               })}
             </span>
           )}
@@ -253,11 +255,11 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
             className={`cursor-pointer ${
               task.completed
                 ? task.starred
-                  ? 'text-yellow-500 border border-black'
-                  : 'text-gray-400'
-                : 'text-gray-400 cursor-not-allowed'
-            } text-2xl ${animateStar && task.starred ? 'animate-rotate-twice' : ''}`}
-            style={{ cursor: task.completed ? 'pointer' : 'not-allowed' }}
+                  ? "text-yellow-500 border border-black"
+                  : "text-gray-400"
+                : "text-gray-400 cursor-not-allowed"
+            } text-2xl ${animateStar && task.starred ? "animate-rotate-twice" : ""}`}
+            style={{ cursor: task.completed ? "pointer" : "not-allowed" }}
           />
 
           {/* Task Owner Initials */}
@@ -266,7 +268,7 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
               task.taskownerinitials
             )} text-white text-sm border border-gray-300 font-semibold`}
             title={task.taskowner}
-            style={{ transform: 'translateX(24px)' }} // Move Task Owner Initials to the right by 5 pixels
+            style={{ transform: "translateX(24px)" }}
           >
             {task.taskownerinitials}
           </span>
@@ -282,7 +284,7 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
           {/* Task Age Field */}
           <span
             className={`flex items-center justify-center w-20 h-8 rounded-xl bg-gray-700 text-white 
-            text-sm font-semibold px-3 ${task.completed ? 'italic line-through' : ''}`}
+            text-sm  px-3 ${task.completed ? "italic line-through" : ""}`}
             title={`Task age: ${taskAge} days`}
           >
             {getTaskAgeLabel()}
@@ -290,7 +292,7 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
 
           <FaCheckCircle
             onClick={handleUpdate}
-            className={`cursor-pointer ${task.completed ? 'text-green-500' : 'text-gray-500'} text-3xl`}
+            className={`cursor-pointer ${task.completed ? "text-green-500" : "text-gray-500"} text-3xl`}
           />
           <FaPencilAlt onClick={openEditModal} className={`cursor-pointer ${getEditIconColor()}`} />
           <FaTrashAlt onClick={handleDelete} className="text-red-500 cursor-pointer ml-4" />
@@ -298,39 +300,14 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
       </div>
 
       {isEditModalOpen && (
-  <EditTask
-    task={task}
-    onSubmit={handleEditSubmit}
-    onClose={closeEditModal}
-    theme={theme}  // Pass the theme prop
-  >
-    {/* Added date picker for editing due date */}
-    <div className="mt-4">
-      <label className="block text-sm font-medium mb-1">Due Date:</label>
-      <DatePicker
-        selected={selectedDueDate}
-        onChange={(date) => setSelectedDueDate(date)}
-        minDate={new Date()} // Disable past dates
-        className="w-full p-2 border border-gray-300 rounded"
-      />
-    </div>
-
-    {/* Added toggle for Perfect Star */}
-    <div className="mt-4">
-      <label className="block text-sm font-medium mb-1">Perfect Star:</label>
-      <button
-        onClick={() => setStarred((prev) => !prev)}
-        className={`px-4 py-2 rounded-md ${
-          task.starred ? "bg-yellow-400 text-white" : "bg-gray-300 text-gray-800"
-        }`}
-      >
-        {task.starred ? "Yes" : "No"}
-      </button>
-    </div>
-  </EditTask>
-)}
-
-      
+        <EditTask
+          task={task}  
+          onSubmit={handleEditSubmit}
+          onClose={closeEditModal}
+          refreshTasks={refreshTasks}
+          theme="light"
+        />
+      )}
     </div>
   );
 }

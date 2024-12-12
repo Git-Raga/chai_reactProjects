@@ -1,12 +1,10 @@
 
  
- 
 
- 
-// TODO:In Edit Model - Due date to save in DB
 // TODO:In Edit Model - Perfect star edits  to save in DB
 // TODO:In Edit Model - Perfect star edits should work only on the closed tasks 
 
+// TODO:Footer Font to change - Qniqe-  
 
 // TODO:After Due date - late task - icon to display
 // TODO:Daily notivation slogan in the top- every reload change
