@@ -18,11 +18,12 @@ function Footer({ theme }) {
   return (
     <footer className={`
     w-full
-    fixed bottom-0 ${footerbgcolor[theme]}`}>
-      {/* Apply theme-based background */}
+    fixed bottom-0 ${footerbgcolor[theme]} `}>
+      {/* Apply theme-based background and TEKO font */}
       <div className="container mx-auto flex justify-center items-center border-t border-dotted font-mono border-gray-400">
         {/* Left Section: Copyright */}
-        <div className="text-sm mr-auto flex items-center">
+        <div className="text-base mr-auto flex items-center
+        font-teko">
           <span>&copy; {new Date().getFullYear()}</span>
           
           <span>FreeMindWorks...</span>
@@ -31,7 +32,8 @@ function Footer({ theme }) {
 
         {/* Center Section: TechSupport */}
         <div
-          className="flex items-center space-x-2 p-1 cursor-pointer"
+          className="flex items-center space-x-2 p-1 cursor-pointer
+          font-teko"
           onClick={handleTechSupportClick} // OnClick function
         >
           <FcSupport className="text-white" /> {/* Support Icon */}
@@ -39,8 +41,8 @@ function Footer({ theme }) {
         </div>
 
         {/* Right Section: Version */}
-        <div className="text-sm ml-auto">
-          Ver|1.0
+        <div className="text-sm ml-auto font-teko">
+          Ver | 1.0
         </div>
       </div>
     </footer>

@@ -102,7 +102,7 @@ function EditTask({ task, onSubmit, onClose, theme, refreshTasks }) {
           </button>
         </div>
 
-        {/* Perfect Star */}
+        {/* Perfect Star
         <label className={`${styles.text} block mb-2`}>Perfect Star:</label>
         <div className="flex space-x-2 mb-4">
           <button
@@ -113,7 +113,7 @@ function EditTask({ task, onSubmit, onClose, theme, refreshTasks }) {
           >
             {isStarred ? "Yes" : "No"}
           </button>
-        </div>
+        </div> */}
 
         {/* Task Owner */}
         <label className={`${styles.text} block mb-2`}>Task Owner:</label>

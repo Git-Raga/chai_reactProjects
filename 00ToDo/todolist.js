@@ -1,10 +1,7 @@
 
  
 
-// TODO:In Edit Model - Perfect star edits  to save in DB
-// TODO:In Edit Model - Perfect star edits should work only on the closed tasks 
 
-// TODO:Footer Font to change - Qniqe-  
 
 // TODO:After Due date - late task - icon to display
 // TODO:Daily notivation slogan in the top- every reload change
@@ -24,7 +21,7 @@
 // TODO:  Task summary - Assigned/completed/Open/Star tasks/late tasks
 // TODO:  for Users Edit option & Delete option not visible
 // TODO:  Change PW Option in the user profile- click
-// TODO:   
+// TODO:  View all tasks/live tasks toggle 
 
 
 //<--------------Suggesions & Bug reporting User Story------------->
