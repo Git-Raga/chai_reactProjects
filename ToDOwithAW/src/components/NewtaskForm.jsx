@@ -105,7 +105,7 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
     const formData = new FormData(formRef.current);
     const newTaskText = formData.get("newtaskbody");
     const taskOwner = selectedTaskOwner;
-
+  
     let tskini = "";
     switch (taskOwner) {
       case "Abhishek": tskini = "AM"; break;
@@ -120,19 +120,67 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
       case "Architha": tskini = "AS"; break;
       default: tskini = "";
     }
-
+  
     if (newTaskText === "") {
       setError("Task cannot be empty");
       setTimeout(() => setError(null), 1000);
       return;
     }
-
+  
     if (newTaskText.length > maxLength) {
       setError(`Task cannot exceed ${maxLength} characters`);
       setTimeout(() => setError(null), 2000);
       return;
     }
-
+  
+    if (taskOwner === "TaskOwner?") {
+      setError("Task owner not assigned");
+      setTimeout(() => setError(null), 2000);
+      return;
+    }
+  
+    try {
+      const payload = {
+        taskname: newTaskText,
+        criticaltask: isCritical,
+        taskowner: taskOwner,
+        taskownerinitials: tskini,
+        completed: false,
+        duedate: selectedDate ? selectedDate.toISOString().split("T")[0] : null,
+      };
+  
+      const response = await db.todocollection.create(payload);
+      if (response) {
+        const taskAge = calculateTaskAge(response.$createdAt);
+        const newTask = { ...response, taskAge };
+  
+        // Combine the new task with existing tasks and apply sorting in one step
+        setNotes((prevState) => {
+          const updatedTasks = [...prevState, newTask];
+          const sortedTasks = sortTasks(updatedTasks); // Sorting logic applied here
+          return sortedTasks;
+        });
+  
+        // Reset form and provide success feedback
+        formRef.current.reset();
+        setIsCritical(false);
+        setSelectedTaskOwner("TaskOwner?");
+        setSuccess("Task added successfully!");
+        setTimeout(() => setSuccess(null), 2000);
+        setError(null);
+        setSelectedDate(null); // Reset the selected date
+        setHighlightCalendarIcon(false); // Remove the red border after task is added
+      } else {
+        throw new Error("Failed to add task");
+      }
+    } catch (error) {
+      console.error("Error adding task:", error);
+      setError("Failed to add task. Please try again.");
+      setTimeout(() => setError(null), 2000);
+    }
+    
+  
+  
     if (taskOwner === "TaskOwner?") {
       setError("Task owner not assigned");
       setTimeout(() => setError(null), 2000);
@@ -155,7 +203,7 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
           const taskAge = calculateTaskAge(response.$createdAt);
           const newTask = { ...response, taskAge };
           const updatedTasks = [...prevState, newTask];
-          return sortTasks(updatedTasks);
+          return updatedTasks;  // Simply return tasks without sorting
         });
 
         formRef.current.reset();
@@ -196,21 +244,21 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
     return dayCount;
   };
 
-  const sortTasks = (tasks) => {
-    return tasks.sort((a, b) => {
-      if (a.completed && !b.completed) return 1;
-      if (!a.completed && b.completed) return -1;
+  // const sortTasks = (tasks) => {
+  //   return tasks.sort((a, b) => {
+  //     if (a.completed && !b.completed) return 1;
+  //     if (!a.completed && b.completed) return -1;
 
-      if (a.criticaltask && !b.criticaltask) return -1;
-      if (!a.criticaltask && b.criticaltask) return 1;
+  //     if (a.criticaltask && !b.criticaltask) return -1;
+  //     if (!a.criticaltask && b.criticaltask) return 1;
 
-      if (a.taskAge !== b.taskAge) {
-        return b.taskAge - a.taskAge;
-      }
+  //     if (a.taskAge !== b.taskAge) {
+  //       return b.taskAge - a.taskAge;
+  //     }
 
-      return new Date(a.$createdAt) - new Date(b.$createdAt);
-    });
-  };
+  //     return new Date(a.$createdAt) - new Date(b.$createdAt);
+  //   });
+  // };
 
   return (
     <div className={`w-full ${selectedFont}`}>

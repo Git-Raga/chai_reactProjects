@@ -28,6 +28,7 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
     taskownerinitials: getInitials(taskData.taskowner || "Unassigned"),
     starred: taskData.Perfectstar || false,
     duedate: taskData.duedate || "NA",
+    latetask: taskData.latetask || false, // Adding latetask field
   });
 
   const [loading, setLoading] = useState(false);
@@ -55,7 +56,16 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
       const age = calculateTaskAge(taskData.$createdAt);
       setTaskAge(age);
     }
-  }, [taskData.$createdAt]);
+
+    // Check if the task is late, excluding today
+    const currentDate = new Date();
+    const dueDate = new Date(task.duedate);
+    if (currentDate > dueDate && currentDate.getDate() !== dueDate.getDate()) {
+      setTask((prevTask) => ({ ...prevTask, latetask: true }));
+    } else {
+      setTask((prevTask) => ({ ...prevTask, latetask: false }));
+    }
+  }, [taskData.$createdAt, task.duedate]);
 
   const openEditModal = () => setIsEditModalOpen(true);
   const closeEditModal = () => setIsEditModalOpen(false);
@@ -63,7 +73,12 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
   const handleEditSubmit = async (updatedTask) => {
     const { taskname, criticaltask, taskowner, duedate } = updatedTask;
     const taskownerinitials = getInitials(taskowner);
-  
+
+    // Check if the task is late after update
+    const currentDate = new Date();
+    const dueDate = new Date(duedate);
+    const latetask = currentDate > dueDate && currentDate.getDate() !== dueDate.getDate();
+
     // Update local state
     setTask((prevTask) => ({
       ...prevTask,
@@ -71,9 +86,10 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
       criticaltask,
       taskowner,
       taskownerinitials,
-      duedate: duedate || "NA", 
+      duedate: duedate || "NA",
+      latetask,
     }));
-  
+
     try {
       // Update the database
       await db.todocollection.update(task.$id, {
@@ -82,30 +98,25 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
         taskowner,
         taskownerinitials,
         duedate: duedate || null,
+        latetask, // Update latetask field
       });
-  
+
       setNotes((prevNotes) => {
         const updatedNotes = prevNotes.map((note) =>
-          note.$id === task.$id 
-            ? { ...note, taskname, criticaltask, taskowner, taskownerinitials, duedate: duedate || "NA" } 
+          note.$id === task.$id
+            ? { ...note, taskname, criticaltask, taskowner, taskownerinitials, duedate: duedate || "NA", latetask }
             : note
         );
-        return updatedNotes.sort((a, b) => {
-          if (a.completed && !b.completed) return 1;
-          if (!a.completed && b.completed) return -1;
-          if (a.criticaltask && !b.criticaltask) return -1;
-          if (!a.criticaltask && b.criticaltask) return 1;
-          return b.taskAge - a.taskAge || new Date(a.$createdAt) - new Date(b.$createdAt);
-        });
+        return updatedNotes;  // No sorting needed as it is handled in Notes.jsx
       });
     } catch (error) {
       console.error("Error updating task:", error);
     }
-  
+
     // Close the modal after saving the task
     closeEditModal();
   };
-  
+
   const handleUpdate = async () => {
     if (loading) return;
 
@@ -113,8 +124,8 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
     setLoading(true);
 
     try {
-      setAnimateRow(false); 
-      setTimeout(() => setAnimateRow(true), 50); 
+      setAnimateRow(false);
+      setTimeout(() => setAnimateRow(true), 50);
 
       setTask((prevTask) => ({ ...prevTask, completed: updatedCompletionStatus }));
 
@@ -123,18 +134,14 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
       if (updatedCompletionStatus) {
         triggerHeaderTickAnimation();
       }
-
       setNotes((prevNotes) => {
         const updatedNotes = prevNotes.map((note) =>
-          note.$id === task.$id ? { ...note, completed: updatedCompletionStatus } : note
+          note.$id === task.$id
+            ? { ...note, taskname, criticaltask, taskowner, taskownerinitials, duedate: duedate || "NA", latetask }
+            : note
         );
-        return updatedNotes.sort((a, b) => {
-          if (a.completed && !b.completed) return 1;
-          if (!a.completed && b.completed) return -1;
-          if (a.criticaltask && !b.criticaltask) return -1;
-          if (!a.criticaltask && b.criticaltask) return 1;
-          return b.taskAge - a.taskAge || new Date(a.$createdAt) - new Date(b.$createdAt);
-        });
+        // No sorting needed, just return updated notes
+        return updatedNotes;
       });
     } catch (error) {
       console.error("Error updating task:", error);
@@ -146,8 +153,8 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
 
   const refreshTasks = async () => {
     try {
-      const tasks = await fetchUpdatedTasks(); // This is the function that fetches updated tasks
-      setNotes(tasks); // Set the updated tasks to state
+      const tasks = await db.todocollection.list(); // Fetch updated tasks from the database
+      setNotes(tasks);  // No sorting, let Notes.jsx handle it
     } catch (error) {
       console.error("Error fetching updated tasks:", error);
     }
@@ -219,7 +226,17 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
     <div className={`w-full mr- ${selectedFont} ${animateRow ? "animate-shrink-expand" : ""}`}>
       <div className={`flex justify-between items-center ${task.completed ? "text-green-700 italic" : "not-italic"}`}>
         <div className="flex items-center flex-1">
-          {task.criticaltask ? (
+          {task.latetask ? (
+            task.criticaltask ? (
+              <span className="text-white bg-red-800 px-2 py-1 rounded mr-2 text-xs font-semibold blink">
+                ⚠️ CRITICAL-LATE
+              </span>
+            ) : (
+              <span className="text-white bg-red-600 px-2 py-1 rounded mr-2 text-xs font-semibold">
+                ⬜ NORMAL-LATE
+              </span>
+            )
+          ) : task.criticaltask ? (
             <span className="text-white bg-red-800 px-2 py-1 rounded mr-2 text-xs font-semibold">
               ⚠️ CRITICAL
             </span>
@@ -235,8 +252,9 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
           {/* Due Date Field */}
           {task.duedate !== "NA" && (
             <span
-              className={`flex items-center justify-center w-20 h-8 rounded-md bg-orange-600 text-white 
-              mr-7 text-sm flex-shrink-0 text-center ${task.completed ? "italic line-through" : ""}`}
+              className={`flex items-center justify-center w-20 h-8 rounded-md ${
+                task.latetask ? "bg-red-600 text-white" : "bg-orange-600 text-white"
+              } mr-7 text-sm flex-shrink-0 text-center ${task.completed ? "italic line-through" : ""}`}
               title={`Due Date: ${new Date(task.duedate).toLocaleDateString("en-GB", {
                 day: "2-digit",
                 month: "short",
@@ -301,7 +319,7 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
 
       {isEditModalOpen && (
         <EditTask
-          task={task}  
+          task={task}
           onSubmit={handleEditSubmit}
           onClose={closeEditModal}
           refreshTasks={refreshTasks}

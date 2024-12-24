@@ -3,8 +3,12 @@
 
 
 
-// TODO:After Due date - late task - icon to display
-// TODO:Daily notivation slogan in the top- every reload change
+ 
+// TODO:Sorting order isse to fix
+// TODO:all tasks in the DB to display
+// TODO:Add a line- total, Done. completed-  open- late 
+
+
 
 
 //<--------------User UI User Story------------->
@@ -22,6 +26,9 @@
 // TODO:  for Users Edit option & Delete option not visible
 // TODO:  Change PW Option in the user profile- click
 // TODO:  View all tasks/live tasks toggle 
+
+// TODO  user will update done - Admin will update completed
+// TODO 
 
 
 //<--------------Suggesions & Bug reporting User Story------------->

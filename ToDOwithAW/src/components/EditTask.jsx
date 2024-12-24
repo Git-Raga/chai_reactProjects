@@ -31,6 +31,11 @@ function EditTask({ task, onSubmit, onClose, theme, refreshTasks }) {
   const handleToggleStarred = () => setIsStarred((prev) => !prev);
 
   const handleSave = async () => {
+    if (!task.completed && isStarred) {
+      alert("Task is not completed yet. Cannot mark as Perfect Star.");
+      return;
+    }
+
     const updatedTask = {
       taskname: taskName,
       criticaltask: isCritical,
@@ -40,12 +45,11 @@ function EditTask({ task, onSubmit, onClose, theme, refreshTasks }) {
     };
 
     console.log("Saving task:", updatedTask);
-        // Close the modal immediately
-        onClose(); 
-
+    // Close the modal immediately
+    onClose();
 
     // Save the task using the onSubmit callback
-    await onSubmit(updatedTask); 
+    await onSubmit(updatedTask);
 
     // Refresh tasks if refreshTasks function is passed
     if (refreshTasks && typeof refreshTasks === "function") {
@@ -53,8 +57,6 @@ function EditTask({ task, onSubmit, onClose, theme, refreshTasks }) {
     } else {
       console.error("refreshTasks is not defined or not a function");
     }
-
-   
   };
 
   const themeStyles = {
@@ -137,7 +139,6 @@ function EditTask({ task, onSubmit, onClose, theme, refreshTasks }) {
             console.log("Selected date:", date);
             setDuedate(date);
           }}
-          minDate={new Date()}
           isClearable
           placeholderText="Select a date"
           className={`w-full p-2 rounded-md mb-4 border border-gray-300 ${styles.dueDateBg} ${styles.dueDateText}`}

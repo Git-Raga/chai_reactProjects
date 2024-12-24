@@ -23,7 +23,7 @@ function Footer({ theme }) {
       <div className="container mx-auto flex justify-center items-center border-t border-dotted font-mono border-gray-400">
         {/* Left Section: Copyright */}
         <div className="text-base mr-auto flex items-center
-        font-teko">
+        font-titillium">
           <span>&copy; {new Date().getFullYear()}</span>
           
           <span>FreeMindWorks...</span>
@@ -33,15 +33,15 @@ function Footer({ theme }) {
         {/* Center Section: TechSupport */}
         <div
           className="flex items-center space-x-2 p-1 cursor-pointer
-          font-teko"
+          font-titillium"
           onClick={handleTechSupportClick} // OnClick function
         >
           <FcSupport className="text-white" /> {/* Support Icon */}
-          <span className="text-sm">Support</span>
+          <span className="text-sm font-bold">Support</span>
         </div>
 
         {/* Right Section: Version */}
-        <div className="text-sm ml-auto font-teko">
+        <div className="text-sm ml-auto font-titillium">
           Ver | 1.0
         </div>
       </div>
