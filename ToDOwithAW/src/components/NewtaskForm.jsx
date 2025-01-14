@@ -1,8 +1,12 @@
-import React, { useState, useRef } from "react";
+// File: src/components/NewtaskForm.jsx
+
+import React, { useState, useRef, useEffect } from "react";
 import db from "../appwrite/database";
 import { FaCalendarAlt } from "react-icons/fa";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import PropTypes from 'prop-types';
+ 
 
 // Function to manage calendar colors based on theme
 const getCalendarColors = (theme) => {
@@ -46,21 +50,18 @@ const getCalendarColors = (theme) => {
   }
 };
 
-function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
+function NewtaskForm({ addTask, inputClass, theme, selectedFont }) {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [isCritical, setIsCritical] = useState(false);
   const maxLength = 255;
   const formRef = useRef(null);
   const taskOwnerRef = useRef(null);
-  const criticalCheckboxRef = useRef(null);
-  const addButtonRef = useRef(null);
   const [selectedTaskOwner, setSelectedTaskOwner] = useState("TaskOwner?");
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [highlightedIndex, setHighlightedIndex] = useState(0);
+  const [highlightCalendarIcon, setHighlightCalendarIcon] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
-  const [highlightCalendarIcon, setHighlightCalendarIcon] = useState(false);
 
   // Get colors based on the current theme
   const calendarColors = getCalendarColors(theme);
@@ -100,12 +101,32 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
     }
   };
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (taskOwnerRef.current && !taskOwnerRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const handleAdd = async (e) => {
+    console.log("handleAdd called"); // Debugging
     e.preventDefault();
+    console.log("Default form behavior prevented"); // Debugging
+
     const formData = new FormData(formRef.current);
-    const newTaskText = formData.get("newtaskbody");
+    const newTaskText = formData.get("newtaskbody").trim(); // Trimmed input
+    console.log("New Task Text:", newTaskText); // Debugging
+
     const taskOwner = selectedTaskOwner;
-  
+    console.log("Selected Task Owner:", taskOwner); // Debugging
+
     let tskini = "";
     switch (taskOwner) {
       case "Abhishek": tskini = "AM"; break;
@@ -120,25 +141,26 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
       case "Architha": tskini = "AS"; break;
       default: tskini = "";
     }
-  
+
+    // Validation
     if (newTaskText === "") {
       setError("Task cannot be empty");
       setTimeout(() => setError(null), 1000);
       return;
     }
-  
+
     if (newTaskText.length > maxLength) {
       setError(`Task cannot exceed ${maxLength} characters`);
       setTimeout(() => setError(null), 2000);
       return;
     }
-  
+
     if (taskOwner === "TaskOwner?") {
       setError("Task owner not assigned");
       setTimeout(() => setError(null), 2000);
       return;
     }
-  
+
     try {
       const payload = {
         taskname: newTaskText,
@@ -147,20 +169,19 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
         taskownerinitials: tskini,
         completed: false,
         duedate: selectedDate ? selectedDate.toISOString().split("T")[0] : null,
+        $createdAt: new Date().toISOString(), // Ensure createdAt is set
       };
-  
+
+      console.log("Payload to create:", payload); // Debugging
+
       const response = await db.todocollection.create(payload);
+      console.log("Response from create:", response); // Debugging
+
       if (response) {
-        const taskAge = calculateTaskAge(response.$createdAt);
-        const newTask = { ...response, taskAge };
-  
-        // Combine the new task with existing tasks and apply sorting in one step
-        setNotes((prevState) => {
-          const updatedTasks = [...prevState, newTask];
-          const sortedTasks = sortTasks(updatedTasks); // Sorting logic applied here
-          return sortedTasks;
-        });
-  
+        // Append the new task to the existing notes without sorting
+        addTask(response);
+        console.log("Task appended to notes"); // Debugging
+
         // Reset form and provide success feedback
         formRef.current.reset();
         setIsCritical(false);
@@ -171,50 +192,7 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
         setSelectedDate(null); // Reset the selected date
         setHighlightCalendarIcon(false); // Remove the red border after task is added
       } else {
-        throw new Error("Failed to add task");
-      }
-    } catch (error) {
-      console.error("Error adding task:", error);
-      setError("Failed to add task. Please try again.");
-      setTimeout(() => setError(null), 2000);
-    }
-    
-  
-  
-    if (taskOwner === "TaskOwner?") {
-      setError("Task owner not assigned");
-      setTimeout(() => setError(null), 2000);
-      return;
-    }
-
-    try {
-      const payload = {
-        taskname: newTaskText,
-        criticaltask: isCritical,
-        taskowner: taskOwner,
-        taskownerinitials: tskini,
-        completed: false,
-        duedate: selectedDate ? selectedDate.toISOString().split("T")[0] : null,
-      };
-
-      const response = await db.todocollection.create(payload);
-      if (response) {
-        setNotes((prevState) => {
-          const taskAge = calculateTaskAge(response.$createdAt);
-          const newTask = { ...response, taskAge };
-          const updatedTasks = [...prevState, newTask];
-          return updatedTasks;  // Simply return tasks without sorting
-        });
-
-        formRef.current.reset();
-        setIsCritical(false);
-        setSelectedTaskOwner("TaskOwner?");
-        setSuccess("Task added successfully!");
-        setTimeout(() => setSuccess(null), 2000);
-        setError(null);
-        setSelectedDate(null); // Reset the selected date
-        setHighlightCalendarIcon(false); // Remove the red border after task is added
-      } else {
+        console.error("Failed to add task: No response");
         throw new Error("Failed to add task");
       }
     } catch (error) {
@@ -223,42 +201,6 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
       setTimeout(() => setError(null), 2000);
     }
   };
-
-  const calculateTaskAge = (timestamp) => {
-    const startDate = new Date(timestamp);
-    const today = new Date();
-    let dayCount = 0;
-
-    if (isNaN(startDate)) {
-      console.error("Invalid timestamp format:", timestamp);
-      return 0;
-    }
-
-    for (let date = new Date(startDate); date <= today; date.setDate(date.getDate() + 1)) {
-      const dayOfWeek = date.getDay();
-      if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-        dayCount++;
-      }
-    }
-
-    return dayCount;
-  };
-
-  // const sortTasks = (tasks) => {
-  //   return tasks.sort((a, b) => {
-  //     if (a.completed && !b.completed) return 1;
-  //     if (!a.completed && b.completed) return -1;
-
-  //     if (a.criticaltask && !b.criticaltask) return -1;
-  //     if (!a.criticaltask && b.criticaltask) return 1;
-
-  //     if (a.taskAge !== b.taskAge) {
-  //       return b.taskAge - a.taskAge;
-  //     }
-
-  //     return new Date(a.$createdAt) - new Date(b.$createdAt);
-  //   });
-  // };
 
   return (
     <div className={`w-full ${selectedFont}`}>
@@ -295,6 +237,9 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
           className="relative inline-block w-1/6"
           tabIndex="3" // Set tabIndex to 3 for task owner dropdown
           onClick={() => setDropdownOpen((prev) => !prev)}
+          role="button"
+          aria-haspopup="listbox"
+          aria-expanded={dropdownOpen}
         >
           <div
             className={`p-2 mt-1 mb-1 ml-1 text-center flex-none w-full rounded-2xl cursor-pointer ${dropdownColors[theme].bg} ${dropdownColors[theme].text} ${selectedFont}`}
@@ -303,12 +248,24 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
           </div>
 
           {dropdownOpen && (
-            <ul className={`absolute z-10 border border-gray-300 mt-1 w-full rounded-lg shadow-lg ${dropdownColors[theme].bg} ${selectedFont}`}>
-              {taskOwners.map((owner, idx) => (
+            <ul
+              className={`absolute z-10 border border-gray-300 mt-1 w-full rounded-lg shadow-lg ${dropdownColors[theme].bg} ${selectedFont}`}
+              onClick={(e) => e.stopPropagation()} // Prevent clicks inside the dropdown from closing it
+              role="listbox"
+            >
+              {taskOwners.map((owner) => (
                 <li
-                  key={idx}
-                  onClick={() => setSelectedTaskOwner(owner)}
-                  className={`px-4 py-2 cursor-pointer ${dropdownColors[theme].text} ${dropdownColors[theme].hover}`}
+                  key={owner} // Using unique owner name as key
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent the parent div's onClick from toggling the dropdown
+                    setSelectedTaskOwner(owner);
+                    setDropdownOpen(false); // Close dropdown after selection
+                  }}
+                  className={`px-4 py-2 cursor-pointer ${dropdownColors[theme].text} ${dropdownColors[theme].hover} ${
+                    selectedTaskOwner === owner ? dropdownColors[theme].selected : ""
+                  }`}
+                  role="option"
+                  aria-selected={selectedTaskOwner === owner}
                 >
                   {owner}
                 </li>
@@ -336,7 +293,6 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
 
         {/* Add Task Button */}
         <div
-          ref={addButtonRef}
           className={`rounded-xl border-2 text-center p-2 mt-1 mb-1 ml-1 mr-2 flex-none ${buttonBackgroundColor[theme]} ${selectedFont}`}
           tabIndex="5" // Set tabIndex to 5 for add task button
           title="Add Task"
@@ -347,12 +303,14 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
         </div>
       </form>
 
+      {/* Error Message */}
       {error && (
         <div className="flex justify-center w-full mt-2">
           <p className="text-red-500 text-sm text-center">{error}</p>
         </div>
       )}
 
+      {/* Success Message */}
       {success && (
         <div className="flex justify-center w-full mt-2">
           <p className="text-green-500 text-sm text-center">{success}</p>
@@ -410,5 +368,13 @@ function NewtaskForm({ setNotes, inputClass, theme, selectedFont }) {
     </div>
   );
 }
+
+// PropTypes for validation
+NewtaskForm.propTypes = {
+  addTask: PropTypes.func.isRequired,
+  inputClass: PropTypes.string.isRequired,
+  theme: PropTypes.string.isRequired,
+  selectedFont: PropTypes.string.isRequired,
+};
 
 export default NewtaskForm;

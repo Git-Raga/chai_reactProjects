@@ -2,10 +2,20 @@
  
 
 
+// TODO: task added successfully - time to reduce
+// TODO: Click on the border also should make the critical button
+// TODO: perfect start animation to make it work
+// TODO: task completion animation to make it work
+// TODO: after task completion- the sorting should happen - closed task should move down
 
- 
-// TODO:Sorting order isse to fix
-// TODO:all tasks in the DB to display
+// TODO: cleanup the console logs
+
+// TODO:critical tas- not to blick - once completed
+
+
+
+
+
 // TODO:Add a line- total, Done. completed-  open- late 
 
 

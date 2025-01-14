@@ -1,11 +1,26 @@
 import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import db from "../appwrite/database";
 
-function EditTask({ task, onSubmit, onClose, theme, refreshTasks }) {
+function EditTask({ 
+  task, 
+  onClose, 
+  onSubmit,  // optional callback to parent
+  theme 
+}) {
+  // Our local states for editing
   const [taskName, setTaskName] = useState(task.taskname || "");
   const [isCritical, setIsCritical] = useState(task.criticaltask || false);
   const [taskOwner, setTaskOwner] = useState(task.taskowner || "Unassigned");
+  
+  const [duedate, setDuedate] = useState(() => {
+    if (!task.duedate || task.duedate === "NA") return null;
+    return new Date(task.duedate);
+  });
+
+  // If you actually want to allow editing of "Perfectstar" here, you can keep it:
+  const [isStarred, setIsStarred] = useState(!!task.Perfectstar);
 
   const taskOwners = [
     "Abhishek",
@@ -20,45 +35,44 @@ function EditTask({ task, onSubmit, onClose, theme, refreshTasks }) {
     "Architha",
   ];
 
-  const isValidDate = (date) => !isNaN(new Date(date).getTime());
-  const [duedate, setDuedate] = useState(
-    task.duedate && isValidDate(task.duedate) ? new Date(task.duedate) : null
-  );
-
-  const [isStarred, setIsStarred] = useState(task.starred || false);
-
   const handleToggleCritical = () => setIsCritical((prev) => !prev);
   const handleToggleStarred = () => setIsStarred((prev) => !prev);
 
   const handleSave = async () => {
-    if (!task.completed && isStarred) {
-      alert("Task is not completed yet. Cannot mark as Perfect Star.");
-      return;
-    }
-
-    const updatedTask = {
+    // Construct the update object, including $id
+    const updatedFields = {
+    
       taskname: taskName,
       criticaltask: isCritical,
       taskowner: taskOwner,
       duedate: duedate ? duedate.toISOString() : null,
-      starred: isStarred,
+      Perfectstar: isStarred,
     };
-
-    console.log("Saving task:", updatedTask);
-    // Close the modal immediately
-    onClose();
-
-    // Save the task using the onSubmit callback
-    await onSubmit(updatedTask);
-
-    // Refresh tasks if refreshTasks function is passed
-    if (refreshTasks && typeof refreshTasks === "function") {
-      await refreshTasks();
-    } else {
-      console.error("refreshTasks is not defined or not a function");
+  
+    console.log("Saving updated fields:", updatedFields);
+  
+    try {
+      // Update the doc in Appwrite
+      const response = await db.todocollection.update(task.$id, updatedFields);
+      console.log("Task updated in Appwrite:", response);
+  
+      // Pass the updated task back to the parent component
+      if (onSubmit) {
+        // Pass the full updated task (response) instead of just the fields
+        onSubmit(response);
+      }
+    } catch (error) {
+      console.error("Error updating task in EditTask:", error);
+      alert("Failed to update the task!");
     }
+  
+    // Close the modal
+    onClose();
   };
 
+   
+  
+  // Optional theming
   const themeStyles = {
     light: {
       text: "text-gray-800",
@@ -73,6 +87,7 @@ function EditTask({ task, onSubmit, onClose, theme, refreshTasks }) {
       dueDateBg: "bg-gray-200",
       dueDateText: "text-gray-800",
     },
+    // Additional themes if you want...
   };
 
   const styles = themeStyles[theme] || themeStyles.light;
@@ -96,26 +111,24 @@ function EditTask({ task, onSubmit, onClose, theme, refreshTasks }) {
         <div className="flex space-x-2 mb-4">
           <button
             onClick={handleToggleCritical}
-            className={`px-4 py-2 rounded-md ${
-              isCritical ? styles.toggleYes : styles.toggleNo
-            }`}
+            className={`px-4 py-2 rounded-md ${isCritical ? styles.toggleYes : styles.toggleNo}`}
           >
             {isCritical ? "Yes" : "No"}
           </button>
         </div>
 
-        {/* Perfect Star
-        <label className={`${styles.text} block mb-2`}>Perfect Star:</label>
+        {/* Perfect Star */}
+        {/*
+        <label className={`${styles.text} block mb-2`}>Starred (Perfectstar):</label>
         <div className="flex space-x-2 mb-4">
           <button
             onClick={handleToggleStarred}
-            className={`px-4 py-2 rounded-md ${
-              isStarred ? styles.toggleYes : styles.toggleNo
-            }`}
+            className={`px-4 py-2 rounded-md ${isStarred ? styles.toggleYes : styles.toggleNo}`}
           >
             {isStarred ? "Yes" : "No"}
           </button>
-        </div> */}
+        </div>
+        */}
 
         {/* Task Owner */}
         <label className={`${styles.text} block mb-2`}>Task Owner:</label>
@@ -135,16 +148,13 @@ function EditTask({ task, onSubmit, onClose, theme, refreshTasks }) {
         <label className={`${styles.text} block mb-2`}>Due Date:</label>
         <DatePicker
           selected={duedate}
-          onChange={(date) => {
-            console.log("Selected date:", date);
-            setDuedate(date);
-          }}
+          onChange={(date) => setDuedate(date)}
           isClearable
           placeholderText="Select a date"
           className={`w-full p-2 rounded-md mb-4 border border-gray-300 ${styles.dueDateBg} ${styles.dueDateText}`}
         />
 
-        {/* Save and Cancel Buttons */}
+        {/* Save & Cancel Buttons */}
         <div className="flex justify-end space-x-2">
           <button
             onClick={handleSave}
@@ -154,7 +164,7 @@ function EditTask({ task, onSubmit, onClose, theme, refreshTasks }) {
           </button>
           <button
             onClick={onClose}
-            className={`px-4 py-2 rounded-md bg-gray-400 text-gray-800`}
+            className="px-4 py-2 rounded-md bg-gray-400 text-gray-800"
           >
             Cancel
           </button>
