@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import db from "../appwrite/database";
 import { FaTrashAlt, FaCheckCircle, FaPencilAlt, FaStar } from "react-icons/fa";
 
-function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnimation, onSaveTask, onEdit }) {
+function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnimation, onSaveTask, onEdit, setTotalTasks }) {
   const getInitials = (ownerName) => {
     const initialsMap = {
       "Abhishek": "AM",
@@ -88,12 +88,20 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
 
   const handleDelete = async () => {
     try {
+      // Delete the task from the database
       await db.todocollection.delete(taskData.$id);
-      setNotes((prevNotes) => prevNotes.filter((note) => note.$id !== taskData.$id));
+      
+      // Update the notes state to remove the deleted task
+      setNotes((prevNotes) => {
+        const updatedNotes = prevNotes.filter((note) => note.$id !== taskData.$id);
+        setTotalTasks(updatedNotes.length); // Update totalTasks with the new length of the notes
+        return updatedNotes;
+      });
     } catch (error) {
       console.error("Error deleting task:", error);
     }
   };
+  
 
   const getEditIconColor = () => {
     switch (theme) {

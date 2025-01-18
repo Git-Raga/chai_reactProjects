@@ -183,11 +183,13 @@ function NewtaskForm({ addTask, inputClass, theme, selectedFont }) {
         console.log("Task appended to notes"); // Debugging
 
         // Reset form and provide success feedback
+       
+        setSuccess("Task added successfully!");
+        setTimeout(() => setSuccess(null), 1500);
         formRef.current.reset();
         setIsCritical(false);
         setSelectedTaskOwner("TaskOwner?");
-        setSuccess("Task added successfully!");
-        setTimeout(() => setSuccess(null), 2000);
+       
         setError(null);
         setSelectedDate(null); // Reset the selected date
         setHighlightCalendarIcon(false); // Remove the red border after task is added
@@ -273,31 +275,38 @@ function NewtaskForm({ addTask, inputClass, theme, selectedFont }) {
             </ul>
           )}
         </div>
-
-        {/* Critical Task Checkbox */}
-        <div
-          className={`rounded-3xl text-center p-2 mt-1 mb-1 ml-1 mr-2 flex-none ${inputClass} ${selectedFont}`}
-          title="Set as CRITICAL Task"
-          tabIndex="4" // Set tabIndex to 4 for critical task checkbox
-        >
-          <input
-            type="checkbox"
-            id="critical"
-            name="critical"
-            checked={isCritical}
-            onChange={() => setIsCritical(!isCritical)}
-            className="mr-1 text-red-500 h-3 w-6 appearance-none border-2 border-gray-300 rounded checked:bg-red-500 checked:border-red-500"
-          />
-          <label htmlFor="critical" className="text-sm cursor-pointer">⚠️</label>
-        </div>
+             {/* Critical Task Checkbox */}
+<div
+  className={`rounded-3xl text-center p-2 mt-1 mb-1 ml-1 mr-2 flex-none ${inputClass} ${selectedFont}`}
+  title="Set as CRITICAL Task"
+  tabIndex="4" // Set tabIndex to 4 for critical task checkbox
+  onClick={() => setIsCritical(!isCritical)}
+>
+  <input
+    type="checkbox"
+    id="critical"
+    name="critical"
+    checked={isCritical}
+    onChange={() => setIsCritical(!isCritical)}
+    className="mr-1 text-red-500 h-3 w-6 appearance-none border-2 border-gray-300 rounded checked:bg-red-500 checked:border-red-500"
+  />
+  <label htmlFor="critical" className="text-sm cursor-pointer" onClick={(event) => {
+    event.preventDefault(); // Prevent default behavior
+    event.stopPropagation(); // Stop propagation 
+    setIsCritical(!isCritical); 
+  }}>⚠️</label>
+</div>
 
         {/* Add Task Button */}
         <div
-          className={`rounded-xl border-2 text-center p-2 mt-1 mb-1 ml-1 mr-2 flex-none ${buttonBackgroundColor[theme]} ${selectedFont}`}
+          className={`rounded-xl border-2 text-center 
+            cursor-pointer
+            p-2 mt-1 mb-1 ml-1 mr-2 flex-none ${buttonBackgroundColor[theme]} ${selectedFont}`}
           tabIndex="5" // Set tabIndex to 5 for add task button
           title="Add Task"
+          onClick={handleAdd} 
         >
-          <button type="submit" className="text-sm cursor-pointer">
+          <button type="button" className="text-sm ">
             Add Task ⬇
           </button>
         </div>

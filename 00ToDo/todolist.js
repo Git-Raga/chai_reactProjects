@@ -2,11 +2,12 @@
  
 
 
-// TODO: task added successfully - time to reduce
-// TODO: Click on the border also should make the critical button
+
+ 
 // TODO: perfect start animation to make it work
 // TODO: task completion animation to make it work
 // TODO: after task completion- the sorting should happen - closed task should move down
+// TODO: completed task in grey color in all themes
 
 // TODO: cleanup the console logs
 

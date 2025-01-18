@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useMemo } from "react";
 import db from "../appwrite/database";
 import "@fontsource/tinos";
 import "@fontsource/lato";
@@ -15,6 +15,7 @@ import EditTask from "../components/EditTask";
 
 const Notes = () => {
   const [notes, setNotes] = useState([]);
+
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
   const [selectedFont, setSelectedFont] = useState("font-titillium");
   const [animateBolt, setAnimateBolt] = useState(false);
@@ -23,14 +24,13 @@ const Notes = () => {
   const [taskToEdit, setTaskToEdit] = useState(null);
   const [totalTasks, setTotalTasks] = useState(0);
   const [loading, setLoading] = useState(true);
+  
 
   const isLate = (dueDate) => {
     if (!dueDate) return false;
     return new Date() > dueDate;
   };
-  const addTask = (newTask) => {
-    setNotes((prevNotes) => sortTasks([...prevNotes, newTask]));
-  };
+ 
 
 
   const calculateTaskAge = (timestamp) => {
@@ -229,7 +229,16 @@ const Notes = () => {
     ];
   };
 
- 
+  const addTask = (newTask) => {
+    setNotes((prevNotes) => {
+      const updatedNotes = sortTasks([...prevNotes, newTask]); // Add new task and sort
+      setTotalTasks(updatedNotes.length); // Update totalTasks with the length of the updated list
+      return updatedNotes; // Return the updated sorted notes
+    });
+  };
+  
+
+  const sortedNotes = useMemo(() => sortTasks(notes), [notes]);
 
   const refreshTasks = async (reason = "general") => {
     setLoading(true);
@@ -386,7 +395,7 @@ const Notes = () => {
                 textColorByTheme[theme] || "text-gray-500"
               }`}
             >
-              Tasks : {totalTasks}
+              Listed Tasks : {totalTasks}
             </span>
             <span
               role="img"
@@ -413,7 +422,7 @@ const Notes = () => {
           <div className="text-center text-gray-500">No tasks found</div>
         ) : (
           Array.isArray(notes) &&
-          notes.map(
+          sortedNotes.map(
             (note) =>
               note &&
               note.$createdAt && (
@@ -429,6 +438,7 @@ const Notes = () => {
                     triggerHeaderTickAnimation={triggerHeaderTickAnimation}
                     onSaveTask={handleSaveTask}
                     onEdit={handleEdit}
+                    setTotalTasks={setTotalTasks} 
                   />
                 </div>
               )
