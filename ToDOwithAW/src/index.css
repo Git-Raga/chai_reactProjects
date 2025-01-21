@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -35,21 +36,8 @@
 .animate-rotate {
   animation: rotate-animation 0.5s ease-in-out;
 }
-@keyframes shrink-expand {
-  0% {
-    transform: scaleY(.05);
-  }
-  50% {
-    transform: scaleY(.02);
-  }
-  100% {
-    transform: scaleY(.5);
-  }
-}
 
-.animate-shrink-expand {
-  animation: shrink-expand 1s ease-in-out;
-}
+
 @keyframes rotate-twice {
   0% {
     transform: rotate(0deg);
@@ -63,18 +51,31 @@
   animation: rotate-twice 0.5s ease-in-out;
 }
 
-@keyframes blink {
+/* Update the keyframes */
+@keyframes shrink-expand {
   0% {
-    opacity: 1;
+    transform: scale(1);
   }
   50% {
-    opacity: 0;
+    transform: scale(.08); /* This will shrink both horizontally and vertically */
   }
   100% {
-    opacity: 1;
+    transform: scale(1); /* Return to normal */
+  }
+}
+
+.animate-shrink-expand {
+  animation: shrink-expand 3s ease-in-out; /* Make sure this duration matches the timeout in JS */
+}
+
+
+@keyframes blink {
+  50% {
+    opacity: 0;
   }
 }
 
 .blink {
-  animation: blink 1s step-end infinite;
+  animation: blink 1s infinite;
 }
+

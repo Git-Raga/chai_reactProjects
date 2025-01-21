@@ -297,7 +297,7 @@ const Notes = () => {
 
   // In Notes.js:
   const handleSaveTask = (updatedDoc) => {
-    console.log("handleSaveTask => got updated doc:", updatedDoc);
+    //////console.log("handleSaveTask => got updated doc:", updatedDoc);
     setNotes((prevNotes) => {
       const updatedNotes = prevNotes.map((note) =>
         note.$id === updatedDoc.$id ? { ...note, ...updatedDoc } : note

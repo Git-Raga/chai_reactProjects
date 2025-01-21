@@ -29,13 +29,13 @@ function TaskHeader({ theme }) {
         </span>
 
         {/* Task Details */}
-        <span className="flex-grow text-left ml-5 flex items-center w-[150px]">
+        <span className="flex-grow ml-16 flex items-center w-[150px]">
           Task Details 📝
         </span>
 
         {/* Due Date */}
-        <span className={`flex-none w-[70px] text-center flex items-center justify-center h-6 rounded-md mr-[22px] ${dueDateBackground}`}>
-          Due ⏱️
+        <span className={`flex-none w-[85px] text-center flex items-center justify-center h-6 rounded-md mr-[22px] ${dueDateBackground}`}>
+        Due⏱️ Date
         </span>
 
         {/* Perfect */}

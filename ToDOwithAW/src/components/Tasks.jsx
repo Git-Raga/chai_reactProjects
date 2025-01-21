@@ -21,7 +21,20 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
     return initialsMap[ownerName] || "NA";
   };
 
-  const [taskAge, setTaskAge] = useState(0);
+ 
+  
+
+  const [task, setTask] = useState({
+    ...taskData,
+    taskowner: taskData.taskowner || "Unassigned",
+    taskownerinitials: getInitials(taskData.taskowner || "Unassigned"),
+    starred: taskData.Perfectstar || false,
+    duedate: taskData.duedate || "NA", // Set "NA" if duedate is null or not set
+  });
+  
+  const [taskAge, setTaskAge] = useState(0);  
+  const [animateStar, setAnimateStar] = useState(false);
+  const [animateRow, setAnimateRow] = useState(false);
 
   useEffect(() => {
     if (taskData.$createdAt) {
@@ -41,51 +54,122 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
     }
   }, [taskData.$createdAt]);
 
+  useEffect(() => {
+    setTask({
+      ...taskData,
+      taskowner: taskData.taskowner || "Unassigned",
+      taskownerinitials: getInitials(taskData.taskowner || "Unassigned"),
+      starred: taskData.Perfectstar || false,
+      duedate: taskData.duedate || "NA",
+    });
+  }, [taskData]);
+
   const latetask = (() => {
     if (!taskData.duedate || taskData.duedate === "NA") return false;
     const currentDate = new Date();
     const dueDateObj = new Date(taskData.duedate);
     return currentDate > dueDateObj;
   })();
-
+  const [loading, setLoading] = useState(false);
   const starred = taskData.Perfectstar || false;
   const completed = taskData.completed || false;
   const taskowner = taskData.taskowner || "Unassigned";
   const taskownerinitials = getInitials(taskowner);
-
+  
   const handleUpdate = async () => {
-    const newCompleted = !completed;
-    try {
-      await db.todocollection.update(taskData.$id, { completed: newCompleted });
-      if (newCompleted) {
-        triggerHeaderTickAnimation();
+    if (loading) return;
+  
+    const updatedCompletionStatus = !task.completed;
+    setTask((prevTask) => ({ ...prevTask, completed: updatedCompletionStatus }));
+    setLoading(true);
+  
+    if (!task.completed) {
+      // Trigger row animation only when transitioning from incomplete to complete
+      setAnimateRow(true);
+      setTimeout(async () => {
+        setAnimateRow(false);
+  
+        try {
+          // Update the database after the animation finishes
+          await db.todocollection.update(task.$id, { completed: updatedCompletionStatus });
+  
+          if (updatedCompletionStatus) {
+            triggerHeaderTickAnimation();
+          }
+  
+          // Update the state with the new task completion status
+          setNotes((prevNotes) => {
+            const updatedNotes = prevNotes
+              ? prevNotes.map((note) =>
+                  note.$id === task.$id
+                    ? { ...note, completed: updatedCompletionStatus }
+                    : note
+                )
+              : []; // Ensure prevNotes is never undefined
+            return updatedNotes;
+          });
+        } catch (error) {
+          console.error("Error updating task:", error);
+          setTask((prevTask) => ({ ...prevTask, completed: !updatedCompletionStatus }));
+        } finally {
+          setLoading(false);
+        }
+      }, 1200); // Ensure the timeout matches the animation duration
+    } else {
+      // Directly update the database and UI without animation when transitioning to incomplete
+      try {
+        await db.todocollection.update(task.$id, { completed: updatedCompletionStatus });
+  
+        // Update the state with the new task completion status
+        setNotes((prevNotes) => {
+          const updatedNotes = prevNotes
+            ? prevNotes.map((note) =>
+                note.$id === task.$id
+                  ? { ...note, completed: updatedCompletionStatus }
+                  : note
+              )
+            : []; // Ensure prevNotes is never undefined
+          return updatedNotes;
+        });
+      } catch (error) {
+        console.error("Error updating task:", error);
+        setTask((prevTask) => ({ ...prevTask, completed: !updatedCompletionStatus }));
+      } finally {
+        setLoading(false);
       }
-      setNotes((prevNotes) =>
-        prevNotes.map((note) =>
-          note.$id === taskData.$id ? { ...note, completed: newCompleted } : note
-        )
-      );
-    } catch (error) {
-      console.error("Error toggling completed:", error);
     }
   };
+  
+  
 
-  const handleStarToggle = async () => {
-    if (!completed) return;
+// Updated handleStarToggle function
+const handleStarToggle = async () => {
+  if (!task.completed) return;
 
-    const newStarValue = !starred;
-    try {
-      await db.todocollection.update(taskData.$id, { Perfectstar: newStarValue });
-      setNotes((prevNotes) =>
-        prevNotes.map((note) =>
-          note.$id === taskData.$id ? { ...note, Perfectstar: newStarValue } : note
-        )
-      );
-    } catch (error) {
-      console.error("Error toggling star:", error);
-    }
-  };
+  const updatedPerfectStarStatus = !task.starred;
+  setTask((prevTask) => ({ ...prevTask, starred: updatedPerfectStarStatus }));
+  setAnimateStar(true);
+  setTimeout(() => setAnimateStar(false), 600);
 
+  try {
+    await db.todocollection.update(task.$id, { Perfectstar: updatedPerfectStarStatus });
+
+    setNotes((prevNotes) =>
+      prevNotes.map((note) =>
+        note.$id === task.$id ? { ...note, starred: updatedPerfectStarStatus, Perfectstar: updatedPerfectStarStatus } : note
+      )
+    );
+  } catch (error) {
+    console.error("Error updating star status:", error);
+    setTask((prevTask) => ({ ...prevTask, starred: !updatedPerfectStarStatus }));
+  }
+};
+
+
+  
+  
+
+  
   const handleDelete = async () => {
     try {
       // Delete the task from the database
@@ -127,34 +211,57 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
     };
     return colorMap[initials] || "bg-gray-500";
   };
-
+  const getBackgroundColor4completed = () => {
+    return completed ? "bg-slate-600 text-slate-400" : ""; 
+  };
   return (
-    <div className={`w-full ${selectedFont}`}>
-      <div className={`flex justify-between items-center ${completed ? "text-green-700 italic" : "not-italic"}`}>
-        {/* Left side: CRITICAL-LATE or NORMAL-LATE badges */}
-        <div className="flex items-center flex-1">
-          {latetask ? (
-            taskData.criticaltask ? (
-              <span className="text-white bg-red-800 px-2 py-1 rounded mr-2 text-xs font-semibold blink">
-                ⚠️ CRITICAL-LATE
-              </span>
-            ) : (
-              <span className="text-white bg-red-600 px-2 py-1 rounded mr-2 text-xs font-semibold">
-                ⬜ NORMAL-LATE
-              </span>
-            )
-          ) : taskData.criticaltask ? (
-            <span className="text-white bg-red-800 px-2 py-1 rounded mr-2 text-xs font-semibold">
-              ⚠️ CRITICAL
-            </span>
-          ) : (
-            <span className="text-white bg-green-700 px-2 py-1 rounded mr-2 text-xs font-semibold">
-              ⬜ NORMAL
-            </span>
-          )}
-          <span className={`${completed ? "line-through" : ""} ml-4`}>
-            {taskData.taskname}
-          </span>
+    
+    <div
+    className={`w-full h-auto p-0 mr-2 ${selectedFont} ${animateRow ? 'animate-shrink-expand' : ''} ${getBackgroundColor4completed()}`}
+  >
+  
+  <div className="flex justify-between items-center">
+  {/* Left side: CRITICAL-LATE or NORMAL-LATE badges */}
+  <div className="flex items-center text-center flex-1">
+    {latetask ? (
+      taskData.criticaltask ? (
+        <span
+          className={`text-white bg-red-800 px-2 py-1 rounded mr-2 text-xs font-semibold w-32 ${
+            !completed ? "blink" : ""
+          }`}
+        >
+          ⚠️ CRITICAL-LATE
+        </span>
+      ) : (
+        <span className="text-white bg-red-600 px-2 py-1 rounded mr-2 text-xs font-semibold w-32">
+          ⬜ NORMAL-LATE
+        </span>
+      )
+    ) : taskData.criticaltask ? (
+      <span className="text-white bg-red-800 px-2 py-1 rounded mr-2 text-xs font-semibold w-32">
+        ⚠️ CRITICAL
+      </span>
+    ) : (
+      <span className="text-white bg-green-700 px-2 py-1 rounded mr-2 text-xs font-semibold w-32">
+        ⬜ NORMAL
+      </span>
+    )}
+ 
+
+
+ <span
+  className={`${completed ? "line-through" : ""}`}
+  style={{
+    display: "inline-block", // Ensures it's treated like a block for proper alignment
+    width: "500px", // Fixed width for alignment
+    overflow: "hidden", // Optional: handles text overflow if necessary
+    whiteSpace: "nowrap", // Optional: prevents text wrapping
+    textIndent: "20px",
+    textAlign:"left"
+  }}
+>
+  {taskData.taskname}
+</span>
         </div>
 
         {/* Right side: due date, star, owner, age, icons */}
@@ -177,17 +284,19 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
             </span>
           )}
 
-          {/* Star icon */}
-          <FaStar
-            onClick={handleStarToggle}
-            className={`cursor-pointer ${
-              completed
-                ? starred
-                  ? "text-yellow-500 border border-black"
-                  : "text-gray-400"
-                : "text-gray-400 cursor-not-allowed"
-            } text-2xl`}
-          />
+              <FaStar
+                onClick={task.completed ? handleStarToggle : null} // Only allow toggle for completed tasks
+                className={`cursor-pointer ${
+                  task.completed
+                    ? task.starred
+                      ? 'text-yellow-500 border border-black'
+                      : 'text-gray-400'
+                    : 'text-gray-400 cursor-not-allowed'
+                } text-2xl ${animateStar && task.starred ? 'animate-rotate-twice' : ''}`}
+                style={{ cursor: task.completed ? 'pointer' : 'not-allowed' }}
+              />
+
+
 
           {/* Owner initials */}
           <span

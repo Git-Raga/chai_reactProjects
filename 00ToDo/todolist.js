@@ -4,21 +4,16 @@
 
 
  
-// TODO: perfect start animation to make it work
-// TODO: task completion animation to make it work
-// TODO: after task completion- the sorting should happen - closed task should move down
-// TODO: completed task in grey color in all themes
-
-// TODO: cleanup the console logs
-
-// TODO:critical tas- not to blick - once completed
+  
 
 
 
 
 
-// TODO:Add a line- total, Done. completed-  open- late 
-
+// TODO:All task and Active task icon fileter in the top
+// TODO:Login page
+// TODO:User Page look and feel
+//  
 
 
 

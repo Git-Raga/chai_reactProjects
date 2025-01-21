@@ -116,16 +116,16 @@ function NewtaskForm({ addTask, inputClass, theme, selectedFont }) {
   }, []);
 
   const handleAdd = async (e) => {
-    console.log("handleAdd called"); // Debugging
+    //console.log("handleAdd called"); // Debugging
     e.preventDefault();
-    console.log("Default form behavior prevented"); // Debugging
+    //console.log("Default form behavior prevented"); // Debugging
 
     const formData = new FormData(formRef.current);
     const newTaskText = formData.get("newtaskbody").trim(); // Trimmed input
-    console.log("New Task Text:", newTaskText); // Debugging
+    //console.log("New Task Text:", newTaskText); // Debugging
 
     const taskOwner = selectedTaskOwner;
-    console.log("Selected Task Owner:", taskOwner); // Debugging
+    //console.log("Selected Task Owner:", taskOwner); // Debugging
 
     let tskini = "";
     switch (taskOwner) {
@@ -172,15 +172,15 @@ function NewtaskForm({ addTask, inputClass, theme, selectedFont }) {
         $createdAt: new Date().toISOString(), // Ensure createdAt is set
       };
 
-      console.log("Payload to create:", payload); // Debugging
+      //console.log("Payload to create:", payload); // Debugging
 
       const response = await db.todocollection.create(payload);
-      console.log("Response from create:", response); // Debugging
+      //console.log("Response from create:", response); // Debugging
 
       if (response) {
         // Append the new task to the existing notes without sorting
         addTask(response);
-        console.log("Task appended to notes"); // Debugging
+        //console.log("Task appended to notes"); // Debugging
 
         // Reset form and provide success feedback
        
