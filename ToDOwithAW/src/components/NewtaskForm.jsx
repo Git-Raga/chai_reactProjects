@@ -168,7 +168,9 @@ function NewtaskForm({ addTask, inputClass, theme, selectedFont }) {
         taskowner: taskOwner,
         taskownerinitials: tskini,
         completed: false,
-        duedate: selectedDate ? selectedDate.toISOString().split("T")[0] : null,
+        duedate: selectedDate ? 
+    selectedDate.toLocaleDateString('en-CA') // This formats as YYYY-MM-DD
+    : null,
         $createdAt: new Date().toISOString(), // Ensure createdAt is set
       };
 

@@ -64,12 +64,16 @@ function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnima
     });
   }, [taskData]);
 
-  const latetask = (() => {
-    if (!taskData.duedate || taskData.duedate === "NA") return false;
-    const currentDate = new Date();
-    const dueDateObj = new Date(taskData.duedate);
-    return currentDate > dueDateObj;
-  })();
+  const latetask = (dueDate) => {
+    if (!dueDate) return false;
+    const today = new Date();
+    const todayStr = today.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+    const dueDateStr = new Date(dueDate).toLocaleDateString('en-CA');
+    return dueDateStr < todayStr;
+  };
+
+
+
   const [loading, setLoading] = useState(false);
   const starred = taskData.Perfectstar || false;
   const completed = taskData.completed || false;
@@ -223,19 +227,16 @@ const handleStarToggle = async () => {
   <div className="flex justify-between items-center">
   {/* Left side: CRITICAL-LATE or NORMAL-LATE badges */}
   <div className="flex items-center text-center flex-1">
-    {latetask ? (
-      taskData.criticaltask ? (
-        <span
-          className={`text-white bg-red-800 px-2 py-1 rounded mr-2 text-xs font-semibold w-32 ${
-            !completed ? "blink" : ""
-          }`}
-        >
-          ⚠️ CRITICAL-LATE
-        </span>
-      ) : (
-        <span className="text-white bg-red-600 px-2 py-1 rounded mr-2 text-xs font-semibold w-32">
-          ⬜ NORMAL-LATE
-        </span>
+  {latetask(taskData.duedate) ? (
+  taskData.criticaltask ? (
+    <span className={`text-white bg-red-800 px-2 py-1 rounded mr-2 text-xs font-semibold w-32 ${!completed ? "blink" : ""}`}>
+      ⚠️ CRITICAL-LATE
+    </span>
+  ) : (
+    <span className="text-white bg-red-600 px-2 py-1 rounded mr-2 text-xs font-semibold w-32">
+      ⬜ NORMAL-LATE
+    </span>
+  
       )
     ) : taskData.criticaltask ? (
       <span className="text-white bg-red-800 px-2 py-1 rounded mr-2 text-xs font-semibold w-32">

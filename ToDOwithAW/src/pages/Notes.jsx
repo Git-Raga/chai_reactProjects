@@ -12,6 +12,8 @@ import Footer from "../components/Footer";
 import FontChanger from "../components/FontChanger";
 import TaskHeader from "../components/TaskHeader";
 import EditTask from "../components/EditTask";
+import FilterView from "../components/FilterView";
+import SortTasks from "../components/SortTasks";
 
 const Notes = () => {
   const [notes, setNotes] = useState([]);
@@ -24,14 +26,15 @@ const Notes = () => {
   const [taskToEdit, setTaskToEdit] = useState(null);
   const [totalTasks, setTotalTasks] = useState(0);
   const [loading, setLoading] = useState(true);
-  
-
-  const isLate = (dueDate) => {
-    if (!dueDate) return false;
-    return new Date() > dueDate;
-  };
+  // Near your other state declarations
  
-
+const [activeTasks, setActiveTasks] = useState(0);
+  
+  const [filterOption, setFilterOption] = useState(() => {
+    return localStorage.getItem("filterOption") || "All";
+  });
+  
+  
 
   const calculateTaskAge = (timestamp) => {
     const startDate = new Date(timestamp);
@@ -50,197 +53,43 @@ const Notes = () => {
     return dayCount;
   };
 
-  const sortTasks = (tasks) => {
-    const now = new Date();
-    // A "day-only" version of the current date
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-    // Helper to compare only the day/month/year
-    const isSameDay = (d1, d2) =>
-      d1.getFullYear() === d2.getFullYear() &&
-      d1.getMonth() === d2.getMonth() &&
-      d1.getDate() === d2.getDate();
-
-    // ---------------- BUCKETS ----------------
-
-    // Past, Not Completed (CRITICAL)
-    const order1 = tasks.filter(
-      (task) =>
-        task.criticaltask &&
-        task.duedate &&
-        new Date(task.duedate) < today &&
-        !task.completed
-    );
-
-    // Past, Not Completed (NON-CRITICAL)
-    const order2 = tasks.filter(
-      (task) =>
-        !task.criticaltask &&
-        task.duedate &&
-        new Date(task.duedate) < today &&
-        !task.completed
-    );
-
-    // Due Today, Not Completed (CRITICAL)
-    const order3 = tasks.filter(
-      (task) =>
-        task.criticaltask &&
-        task.duedate &&
-        isSameDay(new Date(task.duedate), today) &&
-        !task.completed
-    );
-
-    // Due Today, Not Completed (NON-CRITICAL)
-    const order4 = tasks.filter(
-      (task) =>
-        !task.criticaltask &&
-        task.duedate &&
-        isSameDay(new Date(task.duedate), today) &&
-        !task.completed
-    );
-
-    // Future or No Due Date, Not Completed (CRITICAL)
-    const order5 = tasks.filter(
-      (task) =>
-        task.criticaltask &&
-        (!task.duedate || new Date(task.duedate) > today) &&
-        !task.completed
-    );
-
-    // Future or No Due Date, Not Completed (NON-CRITICAL)
-    const order6 = tasks.filter(
-      (task) =>
-        !task.criticaltask &&
-        (!task.duedate || new Date(task.duedate) > today) &&
-        !task.completed
-    );
-
-    // Past, Completed (CRITICAL)
-    const order7 = tasks.filter(
-      (task) =>
-        task.criticaltask &&
-        task.duedate &&
-        new Date(task.duedate) < today &&
-        task.completed
-    );
-
-    // Past, Completed (NON-CRITICAL)
-    const order8 = tasks.filter(
-      (task) =>
-        !task.criticaltask &&
-        task.duedate &&
-        new Date(task.duedate) < today &&
-        task.completed
-    );
-
-    // Due Today, Completed (CRITICAL)
-    const order9 = tasks.filter(
-      (task) =>
-        task.criticaltask &&
-        task.duedate &&
-        isSameDay(new Date(task.duedate), today) &&
-        task.completed
-    );
-
-    // Due Today, Completed (NON-CRITICAL)
-    const order10 = tasks.filter(
-      (task) =>
-        !task.criticaltask &&
-        task.duedate &&
-        isSameDay(new Date(task.duedate), today) &&
-        task.completed
-    );
-
-    // Future or No Due Date, Completed (CRITICAL)
-    const order11 = tasks.filter(
-      (task) =>
-        task.criticaltask &&
-        (!task.duedate || new Date(task.duedate) > today) &&
-        task.completed
-    );
-
-    // Future or No Due Date, Completed (NON-CRITICAL)
-    const order12 = tasks.filter(
-      (task) =>
-        !task.criticaltask &&
-        (!task.duedate || new Date(task.duedate) > today) &&
-        task.completed
-    );
-
-    // ---------------- SORT FUNCTION ----------------
-    const sortFn = (a, b) => {
-      const ageA = typeof a.taskAge === "number" ? a.taskAge : -Infinity;
-      const ageB = typeof b.taskAge === "number" ? b.taskAge : -Infinity;
-      // Descending order by age
-      return ageB - ageA;
-    };
-
-    // Sort each bucket by taskAge
-    order1.sort(sortFn);
-    order2.sort(sortFn);
-    order3.sort(sortFn);
-    order4.sort(sortFn);
-    order5.sort(sortFn);
-    order6.sort(sortFn);
-    order7.sort(sortFn);
-    order8.sort(sortFn);
-    order9.sort(sortFn);
-    order10.sort(sortFn);
-    order11.sort(sortFn);
-    order12.sort(sortFn);
-
-    // ---------------- LEFTOVER BUCKET ----------------
-    // Any tasks that didn't land in any of the above filters
-    const leftover = tasks.filter(
-      (t) =>
-        !order1.includes(t) &&
-        !order2.includes(t) &&
-        !order3.includes(t) &&
-        !order4.includes(t) &&
-        !order5.includes(t) &&
-        !order6.includes(t) &&
-        !order7.includes(t) &&
-        !order8.includes(t) &&
-        !order9.includes(t) &&
-        !order10.includes(t) &&
-        !order11.includes(t) &&
-        !order12.includes(t)
-    );
-
-    if (leftover.length > 0) {
-      console.warn("Tasks not fitting any filter bucket:", leftover);
-    }
-
-    // Return all buckets + leftover
-    return [
-      ...order1,
-      ...order2,
-      ...order3,
-      ...order4,
-      ...order5,
-      ...order6,
-      ...order7,
-      ...order8,
-      ...order9,
-      ...order10,
-      ...order11,
-      ...order12,
-      ...leftover, // So “missing” tasks still show
-    ];
-  };
+  
 
   const addTask = (newTask) => {
     setNotes((prevNotes) => {
-      const updatedNotes = sortTasks([...prevNotes, newTask]); // Add new task and sort
-      setTotalTasks(updatedNotes.length); // Update totalTasks with the length of the updated list
-      return updatedNotes; // Return the updated sorted notes
+      const updatedNotes = SortTasks([...new Map([...prevNotes, newTask].map(task => [task.$id, task])).values()]);
+      setTotalTasks(updatedNotes.length);
+      return updatedNotes;
     });
   };
   
+  
+ 
 
-  const sortedNotes = useMemo(() => sortTasks(notes), [notes]);
 
-  const refreshTasks = async (reason = "general") => {
+  const filteredNotes = useMemo(() => {
+    if (!Array.isArray(notes)) return []; // Ensure `notes` is an array
+    return filterOption === "Active"
+      ? notes.filter((note) => !note.completed)
+      : notes; // Show all tasks for "All"
+  }, [notes, filterOption]);
+  
+// Inside your Notes component
+
+const sortedFilteredNotes = useMemo(() => {
+    // Add additional safety checks
+    if (!filteredNotes || !Array.isArray(filteredNotes)) {
+        console.error('Invalid filteredNotes:', filteredNotes);
+        return [];
+    }
+    
+    const sortedNotes = SortTasks(filteredNotes);
+    return sortedNotes || []; // Ensure always returning an array
+}, [filteredNotes]);
+
+
+
+const refreshTasks = async (reason = "general") => {
     setLoading(true);
     try {
       const limitPerPage = 1000;
@@ -248,9 +97,10 @@ const Notes = () => {
         Query.limit(limitPerPage),
         Query.orderDesc("$createdAt"),
       ]);
-
+  
       let allDocuments = response.documents;
-
+  
+      // Fetch all pages of data
       while (response.total > allDocuments.length) {
         response = await db.todocollection.list([
           Query.limit(limitPerPage),
@@ -259,8 +109,9 @@ const Notes = () => {
         ]);
         allDocuments = [...allDocuments, ...response.documents];
       }
-
-      const tasks = allDocuments.map((task) => ({
+  
+      // Deduplicate tasks by their $id
+      const tasks = Array.isArray(allDocuments) ? Array.from(new Map(allDocuments.map(task => [task.$id, {
         $id: task.$id,
         ...task,
         criticaltask: !!task.criticaltask,
@@ -268,15 +119,15 @@ const Notes = () => {
         duedate: task.duedate ? new Date(task.duedate) : null,
         taskAge: calculateTaskAge(task.$createdAt),
         taskname: task.taskname || "No Name",
-      }));
-
-      const sorted = sortTasks(tasks);
-
-      setNotes(sorted); // Ensure a new array is created
+      }])).values()) : [];
+  
+      const sorted = SortTasks(tasks) || [];
+      setNotes(sorted);
       setTotalTasks(sorted.length);
     } catch (error) {
       console.error("Error in refreshTasks:", error);
-      setNotes([]); // Reset notes on error
+      setNotes([]);
+      setTotalTasks(0);
     } finally {
       setLoading(false);
     }
@@ -292,7 +143,13 @@ const Notes = () => {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-
+  useEffect(() => {
+    if (Array.isArray(notes)) {
+      setTotalTasks(notes.length);
+      setActiveTasks(notes.filter(note => !note.completed).length);
+    }
+  }, [notes]);
+  
   // NEW: Log "notes changed" whenever the 'notes' state updates
 
   // In Notes.js:
@@ -302,7 +159,7 @@ const Notes = () => {
       const updatedNotes = prevNotes.map((note) =>
         note.$id === updatedDoc.$id ? { ...note, ...updatedDoc } : note
       );
-      const sortedNotes = sortTasks(updatedNotes);
+      const sortedNotes = SortTasks(updatedNotes) || [];
       return [...sortedNotes];
     });
     setIsEditing(false);
@@ -366,7 +223,9 @@ const Notes = () => {
   if (loading) {
     return <div>Loading tasks...</div>;
   }
- 
+  
+  
+  
   return (
     <div
       className={`flex flex-col min-h-screen ${getContainerClass()} ${selectedFont}`}
@@ -390,13 +249,22 @@ const Notes = () => {
                 ⚡
               </span>
             </h1>
-            <span
-              className={`ml-4 text-lg ${
-                textColorByTheme[theme] || "text-gray-500"
-              }`}
-            >
-              Listed Tasks : {totalTasks}
+            <span className="flex items-center space-x-6">
+            <FilterView
+              theme={theme}
+              selectedFont={selectedFont}
+              setSelectedFont={setSelectedFont}
+              filterOption={filterOption}
+              setFilterOption={(option) => {
+                localStorage.setItem("filterOption", option);
+                setFilterOption(option);
+              }}
+              />
             </span>
+          
+            <span className={`ml-4 text-lg ${textColorByTheme[theme] || "text-gray-500"}`}>
+  Tasks: {filterOption === "All" ? totalTasks : activeTasks}
+</span>
             <span
               role="img"
               aria-label="task"
@@ -417,43 +285,38 @@ const Notes = () => {
         </div>
       </div>
 
-      <div className="container mx-auto pb-8 overflow-y-auto mt-[189px]">
-        {Array.isArray(notes) && notes.length === 0 ? (
-          <div className="text-center text-gray-500">No tasks found</div>
-        ) : (
-          Array.isArray(notes) &&
-          sortedNotes.map(
-            (note) =>
-              note &&
-              note.$createdAt && (
-                <div
-                  key={note.$id}
-                  className={`p-1 mb-2 rounded-xl shadow flex justify-between items-center text-xm pl-3 ${getTaskClass()}`}
-                >
-                  <Tasks
-                    taskData={note}
-                    setNotes={setNotes}
-                    theme={theme}
-                    selectedFont={selectedFont}
-                    triggerHeaderTickAnimation={triggerHeaderTickAnimation}
-                    onSaveTask={handleSaveTask}
-                    onEdit={handleEdit}
-                    setTotalTasks={setTotalTasks} 
-                  />
-                </div>
-              )
-          )
-        )}
+       
 
-        {isEditing && taskToEdit && (
-          <EditTask
-            task={taskToEdit}
-            onSubmit={handleSaveTask}
-            onClose={() => setIsEditing(false)}
-            theme={theme}
-          />
-        )}
+      <div className="container mx-auto pb-8 overflow-y-auto mt-[189px]">
+  {Array.isArray(sortedFilteredNotes) &&
+    sortedFilteredNotes.map((note) => (
+      <div
+        key={`container-${note.$id}`}
+        className={`p-1 mb-2 rounded-xl shadow flex justify-between items-center text-xm pl-3 ${getTaskClass()}`}
+      >
+        <Tasks
+          key={note.$id}
+          taskData={note}
+          setNotes={setNotes}
+          theme={theme}
+          selectedFont={selectedFont}
+          triggerHeaderTickAnimation={triggerHeaderTickAnimation}
+          onSaveTask={handleSaveTask}
+          onEdit={handleEdit}
+          setTotalTasks={setTotalTasks}
+        />
       </div>
+    ))}
+
+  {isEditing && taskToEdit && (
+    <EditTask
+      task={taskToEdit}
+      onSubmit={handleSaveTask}
+      onClose={() => setIsEditing(false)}
+      theme={theme}
+    />
+  )}
+</div>
 
       <Footer theme={theme} />
     </div>

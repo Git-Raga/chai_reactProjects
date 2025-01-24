@@ -10,7 +10,12 @@
 
 
 
-// TODO:All task and Active task icon fileter in the top
+
+// TODO: Due date - instead of icon - date should come once selected
+// TODO:task age font to reduce
+
+
+
 // TODO:Login page
 // TODO:User Page look and feel
 //  
