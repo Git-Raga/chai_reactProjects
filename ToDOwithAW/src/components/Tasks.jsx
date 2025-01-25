@@ -320,7 +320,7 @@ const handleStarToggle = async () => {
 
           {/* Task age */}
           <span
-            className={`flex items-center justify-center w-20 h-8 rounded-xl bg-gray-700 text-white text-sm px-3 ${
+            className={`flex items-center justify-center w-20 h-8 rounded-xl bg-gray-700 text-white text-xs px-3 ${
               completed ? "italic line-through" : ""
             }`}
             title={`Task age: ${taskAge} days`}

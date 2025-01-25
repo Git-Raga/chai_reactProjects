@@ -34,7 +34,7 @@ function TaskHeader({ theme }) {
         </span>
 
         {/* Due Date */}
-        <span className={`flex-none w-[85px] text-center flex items-center justify-center h-6 rounded-md mr-[22px] ${dueDateBackground}`}>
+        <span className={`flex-none w-[89px] text-center flex items-center justify-center h-6 rounded-md mr-[22px] ${dueDateBackground}`}>
         Due⏱️ Date
         </span>
 

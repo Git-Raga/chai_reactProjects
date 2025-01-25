@@ -26,6 +26,8 @@ const Notes = () => {
   const [taskToEdit, setTaskToEdit] = useState(null);
   const [totalTasks, setTotalTasks] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [selectedOwner, setSelectedOwner] = useState("");
+  const [filteredCount, setFilteredCount] = useState(0);
   // Near your other state declarations
  
 const [activeTasks, setActiveTasks] = useState(0);
@@ -66,13 +68,22 @@ const [activeTasks, setActiveTasks] = useState(0);
   
  
 
-
   const filteredNotes = useMemo(() => {
-    if (!Array.isArray(notes)) return []; // Ensure `notes` is an array
-    return filterOption === "Active"
-      ? notes.filter((note) => !note.completed)
-      : notes; // Show all tasks for "All"
-  }, [notes, filterOption]);
+    if (!Array.isArray(notes)) return [];
+    let filtered = notes;
+    
+    if (selectedOwner) {
+      filtered = filtered.filter(note => note.taskowner === selectedOwner);
+    }
+    
+    const activeFiltered = filterOption === "Active" 
+      ? filtered.filter(note => !note.completed) 
+      : filtered;
+      
+    setFilteredCount(activeFiltered.length);
+    return activeFiltered;
+   }, [notes, filterOption, selectedOwner]);
+  
   
 // Inside your Notes component
 
@@ -217,7 +228,7 @@ const refreshTasks = async (reason = "general") => {
   const textColorByTheme = {
     light: "text-gray-900",
     dark: "text-gray-100",
-    green: "text-teal-300",
+    green: "text-teal-100",
   };
 
   if (loading) {
@@ -250,21 +261,22 @@ const refreshTasks = async (reason = "general") => {
               </span>
             </h1>
             <span className="flex items-center space-x-6">
-            <FilterView
-              theme={theme}
-              selectedFont={selectedFont}
-              setSelectedFont={setSelectedFont}
-              filterOption={filterOption}
-              setFilterOption={(option) => {
-                localStorage.setItem("filterOption", option);
-                setFilterOption(option);
-              }}
-              />
-            </span>
+                <FilterView
+                    theme={theme}
+                    selectedFont={selectedFont}
+                    setSelectedFont={setSelectedFont}
+                    filterOption={filterOption}
+                    setFilterOption={setFilterOption}
+                    onOwnerChange={(owner) => setSelectedOwner(owner)}
+                />
+                </span>
           
-            <span className={`ml-4 text-lg ${textColorByTheme[theme] || "text-gray-500"}`}>
-  Tasks: {filterOption === "All" ? totalTasks : activeTasks}
-</span>
+              
+ <span className={`ml-4 text-lg border border-gray-300 rounded-full px-4 py-1  ${textColorByTheme[theme] || "text-gray-500"}`}>
+   Tasks: {filteredCount}
+ </span>
+ 
+ 
             <span
               role="img"
               aria-label="task"
