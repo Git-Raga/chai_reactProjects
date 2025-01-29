@@ -1,19 +1,19 @@
-import React, { useEffect, useState,useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import db from "../appwrite/database";
 import "@fontsource/tinos";
 import "@fontsource/lato";
 import "@fontsource/ubuntu";
 import { Query } from "appwrite";
 
-import NewtaskForm from "../components/NewtaskForm";
-import Tasks from "../components/Tasks";
-import ThemeChanger from "../components/ThemeChanger";
-import Footer from "../components/Footer";
-import FontChanger from "../components/FontChanger";
-import TaskHeader from "../components/TaskHeader";
-import EditTask from "../components/EditTask";
-import FilterView from "../components/FilterView";
-import SortTasks from "../components/SortTasks";
+import NewtaskForm from "./NewtaskForm";
+import Tasks from "./Tasks";
+import ThemeChanger from "./ThemeChanger";
+import Footer from "./Footer";
+import FontChanger from "./FontChanger";
+import TaskHeader from "./TaskHeader";
+import EditTask from "./EditTask";
+import FilterView from "./FilterView";
+import SortTasks from "./SortTasks";
 
 const Notes = () => {
   const [notes, setNotes] = useState([]);
@@ -28,15 +28,15 @@ const Notes = () => {
   const [loading, setLoading] = useState(true);
   const [selectedOwner, setSelectedOwner] = useState("");
   const [filteredCount, setFilteredCount] = useState(0);
+  const isAdmin = localStorage.getItem('isAdmin') === 'true';
+     const [isAnimating, setIsAnimating] = useState(true);
   // Near your other state declarations
- 
-const [activeTasks, setActiveTasks] = useState(0);
-  
+
+  const [activeTasks, setActiveTasks] = useState(0);
+
   const [filterOption, setFilterOption] = useState(() => {
     return localStorage.getItem("filterOption") || "All";
   });
-  
-  
 
   const calculateTaskAge = (timestamp) => {
     const startDate = new Date(timestamp);
@@ -55,52 +55,55 @@ const [activeTasks, setActiveTasks] = useState(0);
     return dayCount;
   };
 
-  
-
   const addTask = (newTask) => {
     setNotes((prevNotes) => {
-      const updatedNotes = SortTasks([...new Map([...prevNotes, newTask].map(task => [task.$id, task])).values()]);
+      const updatedNotes = SortTasks([
+        ...new Map(
+          [...prevNotes, newTask].map((task) => [task.$id, task])
+        ).values(),
+      ]);
       setTotalTasks(updatedNotes.length);
       return updatedNotes;
     });
   };
-  
-  
- 
+  React.useEffect(() => {
+     const interval = setInterval(() => {
+       setIsAnimating(prev => !prev);
+     }, 1500);
+     return () => clearInterval(interval);
+   }, []);
 
   const filteredNotes = useMemo(() => {
     if (!Array.isArray(notes)) return [];
     let filtered = notes;
-    
+
     if (selectedOwner) {
-      filtered = filtered.filter(note => note.taskowner === selectedOwner);
+      filtered = filtered.filter((note) => note.taskowner === selectedOwner);
     }
-    
-    const activeFiltered = filterOption === "Active" 
-      ? filtered.filter(note => !note.completed) 
-      : filtered;
-      
+
+    const activeFiltered =
+      filterOption === "Active"
+        ? filtered.filter((note) => !note.completed)
+        : filtered;
+
     setFilteredCount(activeFiltered.length);
     return activeFiltered;
-   }, [notes, filterOption, selectedOwner]);
-  
-  
-// Inside your Notes component
+  }, [notes, filterOption, selectedOwner]);
 
-const sortedFilteredNotes = useMemo(() => {
+  // Inside your Notes component
+
+  const sortedFilteredNotes = useMemo(() => {
     // Add additional safety checks
     if (!filteredNotes || !Array.isArray(filteredNotes)) {
-        console.error('Invalid filteredNotes:', filteredNotes);
-        return [];
+      console.error("Invalid filteredNotes:", filteredNotes);
+      return [];
     }
-    
+
     const sortedNotes = SortTasks(filteredNotes);
     return sortedNotes || []; // Ensure always returning an array
-}, [filteredNotes]);
+  }, [filteredNotes]);
 
-
-
-const refreshTasks = async (reason = "general") => {
+  const refreshTasks = async (reason = "general") => {
     setLoading(true);
     try {
       const limitPerPage = 1000;
@@ -108,9 +111,9 @@ const refreshTasks = async (reason = "general") => {
         Query.limit(limitPerPage),
         Query.orderDesc("$createdAt"),
       ]);
-  
+
       let allDocuments = response.documents;
-  
+
       // Fetch all pages of data
       while (response.total > allDocuments.length) {
         response = await db.todocollection.list([
@@ -120,18 +123,27 @@ const refreshTasks = async (reason = "general") => {
         ]);
         allDocuments = [...allDocuments, ...response.documents];
       }
-  
+
       // Deduplicate tasks by their $id
-      const tasks = Array.isArray(allDocuments) ? Array.from(new Map(allDocuments.map(task => [task.$id, {
-        $id: task.$id,
-        ...task,
-        criticaltask: !!task.criticaltask,
-        completed: !!task.completed,
-        duedate: task.duedate ? new Date(task.duedate) : null,
-        taskAge: calculateTaskAge(task.$createdAt),
-        taskname: task.taskname || "No Name",
-      }])).values()) : [];
-  
+      const tasks = Array.isArray(allDocuments)
+        ? Array.from(
+            new Map(
+              allDocuments.map((task) => [
+                task.$id,
+                {
+                  $id: task.$id,
+                  ...task,
+                  criticaltask: !!task.criticaltask,
+                  completed: !!task.completed,
+                  duedate: task.duedate ? new Date(task.duedate) : null,
+                  taskAge: calculateTaskAge(task.$createdAt),
+                  taskname: task.taskname || "No Name",
+                },
+              ])
+            ).values()
+          )
+        : [];
+
       const sorted = SortTasks(tasks) || [];
       setNotes(sorted);
       setTotalTasks(sorted.length);
@@ -157,10 +169,10 @@ const refreshTasks = async (reason = "general") => {
   useEffect(() => {
     if (Array.isArray(notes)) {
       setTotalTasks(notes.length);
-      setActiveTasks(notes.filter(note => !note.completed).length);
+      setActiveTasks(notes.filter((note) => !note.completed).length);
     }
   }, [notes]);
-  
+
   // NEW: Log "notes changed" whenever the 'notes' state updates
 
   // In Notes.js:
@@ -234,9 +246,7 @@ const refreshTasks = async (reason = "general") => {
   if (loading) {
     return <div>Loading tasks...</div>;
   }
-  
-  
-  
+
   return (
     <div
       className={`flex flex-col min-h-screen ${getContainerClass()} ${selectedFont}`}
@@ -244,7 +254,7 @@ const refreshTasks = async (reason = "general") => {
       <div className="fixed top-0 left-0 right-0 bg-opacity-90 z-10 bg-inherit shadow-md">
         <div className="container mx-auto items-center justify-between mb-1 ">
           <div className="flex items-center space-x-6">
-            <ThemeChanger currentTheme={theme} setTheme={setTheme} />
+            <ThemeChanger currentTheme={theme} setTheme={setTheme} isAdmin={isAdmin}/>
             <FontChanger
               theme={theme}
               selectedFont={selectedFont}
@@ -253,30 +263,30 @@ const refreshTasks = async (reason = "general") => {
             <h1 className="text-3xl flex-1 text-center">
               TaskForce{" "}
               <span
-                className={`inline-block ${
-                  animateBolt ? "animate-bolt-scale" : ""
-                }`}
-              >
+                 className={`inline-block text-2xl ${isAnimating ? 'opacity-100' : 'opacity-50'} transition-opacity duration-500`}>
+              
                 ⚡
               </span>
             </h1>
             <span className="flex items-center space-x-6">
-                <FilterView
-                    theme={theme}
-                    selectedFont={selectedFont}
-                    setSelectedFont={setSelectedFont}
-                    filterOption={filterOption}
-                    setFilterOption={setFilterOption}
-                    onOwnerChange={(owner) => setSelectedOwner(owner)}
-                />
-                </span>
-          
-              
- <span className={`ml-4 text-lg border border-gray-300 rounded-full px-4 py-1  ${textColorByTheme[theme] || "text-gray-500"}`}>
-   Tasks: {filteredCount}
- </span>
- 
- 
+              <FilterView
+                theme={theme}
+                selectedFont={selectedFont}
+                setSelectedFont={setSelectedFont}
+                filterOption={filterOption}
+                setFilterOption={setFilterOption}
+                onOwnerChange={(owner) => setSelectedOwner(owner)}
+              />
+            </span>
+
+            <span
+              className={`ml-4 text-sm border border-gray-300 rounded-full px-4 py-1  ${
+                textColorByTheme[theme] || "text-gray-500"
+              }`}
+            >
+             {filteredCount} Tasks
+            </span>
+
             <span
               role="img"
               aria-label="task"
@@ -297,38 +307,37 @@ const refreshTasks = async (reason = "general") => {
         </div>
       </div>
 
-       
-
       <div className="container mx-auto pb-8 overflow-y-auto mt-[189px]">
-  {Array.isArray(sortedFilteredNotes) &&
-    sortedFilteredNotes.map((note) => (
-      <div
-        key={`container-${note.$id}`}
-        className={`p-1 mb-2 rounded-xl shadow flex justify-between items-center text-xm pl-3 ${getTaskClass()}`}
-      >
-        <Tasks
-          key={note.$id}
-          taskData={note}
-          setNotes={setNotes}
-          theme={theme}
-          selectedFont={selectedFont}
-          triggerHeaderTickAnimation={triggerHeaderTickAnimation}
-          onSaveTask={handleSaveTask}
-          onEdit={handleEdit}
-          setTotalTasks={setTotalTasks}
-        />
-      </div>
-    ))}
+        {Array.isArray(sortedFilteredNotes) &&
+          sortedFilteredNotes.map((note) => (
+            <div
+              key={`container-${note.$id}`}
+              className={`p-1 mb-2 rounded-xl shadow flex justify-between items-center text-xm pl-3 ${getTaskClass()}`}
+            >
+              <Tasks
+                key={note.$id}
+                taskData={note}
+                setNotes={setNotes}
+                theme={theme}
+                selectedFont={selectedFont}
+                triggerHeaderTickAnimation={triggerHeaderTickAnimation}
+                onSaveTask={handleSaveTask}
+                onEdit={handleEdit}
+                setTotalTasks={setTotalTasks}
+                isAdmin={isAdmin} // A
+              />
+            </div>
+          ))}
 
-  {isEditing && taskToEdit && (
-    <EditTask
-      task={taskToEdit}
-      onSubmit={handleSaveTask}
-      onClose={() => setIsEditing(false)}
-      theme={theme}
-    />
-  )}
-</div>
+        {isEditing && taskToEdit && (
+          <EditTask
+            task={taskToEdit}
+            onSubmit={handleSaveTask}
+            onClose={() => setIsEditing(false)}
+            theme={theme}
+          />
+        )}
+      </div>
 
       <Footer theme={theme} />
     </div>

@@ -1,8 +1,12 @@
 import React from 'react';
 
-function ThemeChanger({ currentTheme, setTheme }) {
+function ThemeChanger({ currentTheme, setTheme, isAdmin = false }) {
   return (
     <div className="space-x-4 flex items-center">
+      <div className={`px-3 rounded-full border ${isAdmin ? 'border-gray-600 bg-gray-800' : 'border-gray-400 bg-gray-600'}`}>
+        <span className="text-sm text-gray-400">{isAdmin ? 'Admin View' : 'User View'}</span>
+      </div>
+
       <div className="flex flex-col items-center">
         <button
           className={`w-3 h-3 rounded-full border-2 ${currentTheme === 'dark' ? 'border-white' : 'border-transparent'} bg-black focus:outline-none`}

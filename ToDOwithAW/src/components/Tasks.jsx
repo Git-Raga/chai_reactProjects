@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import db from "../appwrite/database";
 import { FaTrashAlt, FaCheckCircle, FaPencilAlt, FaStar } from "react-icons/fa";
 
-function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnimation, onSaveTask, onEdit, setTotalTasks }) {
+function Tasks({ taskData, setNotes, theme, selectedFont, triggerHeaderTickAnimation, onSaveTask, onEdit, setTotalTasks,isAdmin }) {
   const getInitials = (ownerName) => {
     const initialsMap = {
       "Abhishek": "AM",
@@ -220,10 +220,13 @@ const handleStarToggle = async () => {
   };
   return (
     
-    <div
-    className={`w-full h-auto p-0 mr-2 ${selectedFont} ${animateRow ? 'animate-shrink-expand' : ''} ${getBackgroundColor4completed()}`}
-  >
-  
+ 
+<div
+ className={`w-full h-auto p-1  rounded-xl  ${selectedFont} ${animateRow ? 'animate-shrink-expand' : ''} ${
+   completed ? "bg-slate-600 line-through text-slate-400" : ""
+ }`}
+>
+
   <div className="flex justify-between items-center">
   {/* Left side: CRITICAL-LATE or NORMAL-LATE badges */}
   <div className="flex items-center text-center flex-1">
@@ -285,17 +288,18 @@ const handleStarToggle = async () => {
             </span>
           )}
 
-              <FaStar
-                onClick={task.completed ? handleStarToggle : null} // Only allow toggle for completed tasks
-                className={`cursor-pointer ${
-                  task.completed
-                    ? task.starred
-                      ? 'text-yellow-500 border border-black'
-                      : 'text-gray-400'
-                    : 'text-gray-400 cursor-not-allowed'
-                } text-2xl ${animateStar && task.starred ? 'animate-rotate-twice' : ''}`}
-                style={{ cursor: task.completed ? 'pointer' : 'not-allowed' }}
-              />
+            <FaStar
+               onClick={isAdmin && task.completed ? handleStarToggle : null}
+               className={`${
+                 isAdmin && task.completed
+                   ? task.starred
+                     ? 'text-yellow-500 border border-black cursor-pointer'
+                     : 'text-gray-400 cursor-pointer'
+                   : 'text-gray-400 cursor-not-allowed opacity-50'
+               } text-2xl ${animateStar && task.starred ? 'animate-rotate-twice' : ''}`}
+               title={!isAdmin ? "Star rating disabled for non-admin users" : 
+                      !task.completed ? "Complete task to enable star rating" : "Toggle star rating"}
+             />
 
 
 
@@ -331,16 +335,23 @@ const handleStarToggle = async () => {
           {/* Checkmark (toggle completion) */}
           <FaCheckCircle
             onClick={handleUpdate}
-            className={`cursor-pointer ${completed ? "text-green-500" : "text-gray-500"} text-3xl`}
+            className={`cursor-pointer ${completed ? "text-green-500 ": "text-gray-500 border-2 rounded-2xl"} text-3xl`}
           />
 
-          {/* Edit button */}
-          <FaPencilAlt 
-            onClick={() => onEdit(taskData)}
-            className={`cursor-pointer ${getEditIconColor()}`} />
+ 
+    <FaPencilAlt 
+ className={`${getEditIconColor()} ${!isAdmin ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+ onClick={isAdmin ? () => onEdit(taskData) : undefined}
+ title={!isAdmin ? "Editing disabled for non-admin users" : "Edit task"}
+/>
 
-          {/* Delete button */}
-          <FaTrashAlt onClick={handleDelete} className="text-red-500 cursor-pointer ml-4" />
+<FaTrashAlt 
+ className={`text-red-500 ml-4 ${!isAdmin ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}
+ onClick={isAdmin ? handleDelete : undefined}
+ title={!isAdmin ? "Deletion disabled for non-admin users" : "Delete task"}
+/>
+ 
+ 
         </div>
       </div>
     </div>

@@ -20,7 +20,7 @@ function TaskHeader({ theme }) {
 
   return (
     <div
-      className={`w-full whitespace-nowrap ${headerBackground} border-b ${borderColor} `}
+      className={`w-full whitespace-nowrap ${headerBackground} border-b ${borderColor} pt-1 `}
     >
       <div className={`flex items-center text-sm font-semibold ${themeTextColor}`}>
         {/* Urgency */}
