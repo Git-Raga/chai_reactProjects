@@ -95,6 +95,7 @@ function FilterView({ theme, selectedFont, setSelectedFont,filterOption, setFilt
    <option value="Bhaskar">Bhaskar</option>
    <option value="Architha">Architha</option>
    <option value="Neha">Neha</option>
+   <option value="Matt">Matt</option>
  </select>
 
  <div className="text-xs">

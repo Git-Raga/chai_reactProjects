@@ -14,10 +14,13 @@ import TaskHeader from "./TaskHeader";
 import EditTask from "./EditTask";
 import FilterView from "./FilterView";
 import SortTasks from "./SortTasks";
+import AdminSettingsModal from './AdminSettingsModal';
+import { useNavigate } from 'react-router-dom'
+
 
 const Notes = () => {
   const [notes, setNotes] = useState([]);
-
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
   const [selectedFont, setSelectedFont] = useState("font-titillium");
   const [animateBolt, setAnimateBolt] = useState(false);
@@ -30,6 +33,7 @@ const Notes = () => {
   const [filteredCount, setFilteredCount] = useState(0);
   const isAdmin = localStorage.getItem('isAdmin') === 'true';
      const [isAnimating, setIsAnimating] = useState(true);
+     const navigate = useNavigate();
   // Near your other state declarations
 
   const [activeTasks, setActiveTasks] = useState(0);
@@ -53,6 +57,47 @@ const Notes = () => {
       }
     }
     return dayCount;
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('isAdmin');
+    navigate('/login', { replace: true });
+  };
+  
+  const handlePasswordUpdate = async (currentPassword, newPassword) => {
+    try {
+      const email = localStorage.getItem('userEmail');
+      if (!email) {
+        throw new Error('User email not found in localStorage');
+      }
+  
+      // Find user by email
+      const response = await db.userdetails.list([
+        Query.equal('email', email)
+      ]);
+  
+      if (!response.documents || response.documents.length === 0) {
+        throw new Error('User not found in database');
+      }
+  
+      const user = response.documents[0];
+      
+      // Verify current password
+      if (user.password !== currentPassword) {
+        throw new Error('Current password is incorrect');
+      }
+  
+      // Update password
+      await db.userdetails.update(user.$id, {
+        password: newPassword
+      });
+  
+      return Promise.resolve();
+    } catch (error) {
+      console.error('Error in handlePasswordUpdate:', error);
+      return Promise.reject(error.message || 'Password update failed');
+    }
   };
 
   const addTask = (newTask) => {
@@ -268,16 +313,29 @@ const Notes = () => {
                 ⚡
               </span>
             </h1>
-            <span className="flex items-center space-x-6">
-              <FilterView
-                theme={theme}
-                selectedFont={selectedFont}
-                setSelectedFont={setSelectedFont}
-                filterOption={filterOption}
-                setFilterOption={setFilterOption}
-                onOwnerChange={(owner) => setSelectedOwner(owner)}
-              />
-            </span>
+            <span className="flex items-center space-x-1">
+                  <FilterView
+                    theme={theme}
+                    selectedFont={selectedFont}
+                    setSelectedFont={setSelectedFont}
+                    filterOption={filterOption}
+                    setFilterOption={setFilterOption}
+                    onOwnerChange={(owner) => setSelectedOwner(owner)}
+                  />
+                  <button
+                    className={`p-2 rounded-lg hover:bg-opacity-80 transition-colors ${
+                      theme === 'dark' 
+                        ? 'hover:bg-gray-700 text-gray-300' 
+                        : theme === 'green'
+                        ? 'hover:bg-cyan-700 text-gray-300'
+                        : 'hover:bg-gray-200 text-gray-600'
+                    }`}
+                    onClick={() => setIsSettingsModalOpen(true)}
+                  >
+                    ⚙️
+                  </button>
+              </span>
+                          
 
             <span
               className={`ml-4 text-sm border border-gray-300 rounded-full px-4 py-1  ${
@@ -307,7 +365,7 @@ const Notes = () => {
         </div>
       </div>
 
-      <div className="container mx-auto pb-8 overflow-y-auto mt-[189px]">
+      <div className="container mx-auto pb-8 overflow-y-auto mt-[197px]">
         {Array.isArray(sortedFilteredNotes) &&
           sortedFilteredNotes.map((note) => (
             <div
@@ -328,6 +386,7 @@ const Notes = () => {
               />
             </div>
           ))}
+         
 
         {isEditing && taskToEdit && (
           <EditTask
@@ -337,10 +396,19 @@ const Notes = () => {
             theme={theme}
           />
         )}
+         <AdminSettingsModal
+  isOpen={isSettingsModalOpen}
+  onClose={() => setIsSettingsModalOpen(false)}
+  onLogout={handleLogout}
+  onPasswordUpdate={handlePasswordUpdate}
+  theme={theme}
+  userTasks={notes}/>
       </div>
 
       <Footer theme={theme} />
     </div>
+
+    
   );
 };
 

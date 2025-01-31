@@ -450,7 +450,7 @@ const handleLogout = () => {
         </div>
       </div>
 
-      <div className="container mx-auto  overflow-y-auto mt-[135px]">
+      <div className="container mx-auto  overflow-y-auto mt-[135px] mb-2">
         {Array.isArray(sortedFilteredNotes) &&
           sortedFilteredNotes.map((note) => (
             <div
@@ -477,6 +477,7 @@ const handleLogout = () => {
         onLogout={handleLogout}
         onPasswordUpdate={handlePasswordUpdate}
         theme={theme}
+        userTasks={notes} 
       />
 
         

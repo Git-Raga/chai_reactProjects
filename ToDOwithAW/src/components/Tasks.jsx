@@ -288,19 +288,22 @@ const handleStarToggle = async () => {
             </span>
           )}
 
-            <FaStar
-               onClick={isAdmin && task.completed ? handleStarToggle : null}
-               className={`${
-                 isAdmin && task.completed
-                   ? task.starred
-                     ? 'text-yellow-500 border border-black cursor-pointer'
-                     : 'text-gray-400 cursor-pointer'
-                   : 'text-gray-400 cursor-not-allowed opacity-50'
-               } text-2xl ${animateStar && task.starred ? 'animate-rotate-twice' : ''}`}
-               title={!isAdmin ? "Star rating disabled for non-admin users" : 
-                      !task.completed ? "Complete task to enable star rating" : "Toggle star rating"}
-             />
-
+<FaStar
+  onClick={isAdmin && task.completed ? handleStarToggle : null}
+  className={`${
+    // Show yellow star if starred, regardless of admin status
+    task.starred
+      ? 'text-yellow-500 border border-black'
+      : 'text-gray-400'
+  } ${
+    // Add cursor and opacity styles based on admin status
+    isAdmin && task.completed
+      ? 'cursor-pointer'
+      : 'cursor-not-allowed'
+  } text-2xl ${animateStar && task.starred ? 'animate-rotate-twice' : ''}`}
+  title={!isAdmin ? "Star rating is read-only for non-admin users" : 
+         !task.completed ? "Complete task to enable star rating" : "Toggle star rating"}
+/>
 
 
           {/* Owner initials */}
